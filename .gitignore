@@ -1,0 +1,45 @@
+# ------------------------
+# Flutter / Dart
+# ------------------------
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+.macos/
+.packages
+.dart_tool/
+
+# Android
+**/android/app/google-services.json
+**/android/key.properties
+
+# iOS
+**/ios/Runner/GoogleService-Info.plist
+**/ios/Flutter/flutter_export_environment.sh
+
+# ------------------------
+# Python / FastAPI
+# ------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+venv/
+.env
+.env.*
+*.log
+
+# ------------------------
+# OS / IDE files
+# ------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.iml
