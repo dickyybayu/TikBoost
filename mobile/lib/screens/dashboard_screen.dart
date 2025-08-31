@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_constants.dart';
 import '../widgets/dashboard_widgets.dart';
+import 'live_performance_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final VoidCallback? onSettingsPressed;
@@ -100,7 +101,14 @@ class DashboardScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LivePerformanceScreen(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3B82F6),
                         foregroundColor: Colors.white,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'product_detail_screen.dart';
+import 'add_product_screen.dart';
 
 class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});
@@ -22,7 +24,14 @@ class ProductsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded, color: Colors.black87),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddProductScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -31,9 +40,9 @@ class ProductsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Performance Section
+            // Your Products Section
             const Text(
-              'Product Performance',
+              'Your Products',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -42,25 +51,28 @@ class ProductsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Product Performance Cards
+            // Your Product Cards
             _buildProductCard(
+              context,
               'assets/images/batik_scarf.jpg',
               'Handmade Batik Scarf',
-              '120 sold',
+              '120 sold today • Trending',
             ),
             const SizedBox(height: 12),
             
             _buildProductCard(
+              context,
               'assets/images/wayang_kulit.jpg',
               'Traditional Wayang Kulit',
-              '85 sold',
+              '85 sold today • High interest',
             ),
             const SizedBox(height: 12),
             
             _buildProductCard(
+              context,
               'assets/images/coffee_beans.jpg',
               'Indonesian Coffee Beans',
-              '150 sold',
+              '150 sold today • Top performer',
             ),
             
             const SizedBox(height: 32),
@@ -127,63 +139,103 @@ class ProductsScreen extends StatelessWidget {
     );
   }
   
-  Widget _buildProductCard(String imagePath, String title, String subtitle) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Product Image Placeholder
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F0F0),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.image_rounded,
-              color: Colors.black26,
-              size: 24,
+  Widget _buildProductCard(BuildContext context, String imagePath, String title, String subtitle) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(
+              productName: title,
+              soldCount: subtitle,
+              imagePath: imagePath,
             ),
           ),
-          const SizedBox(width: 12),
-          
-          // Product Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Product Image Placeholder
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F0F0),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.image_rounded,
+                color: Colors.black26,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            
+            // Product Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tap for AI insights & analytics',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF3B82F6),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Add arrow icon to indicate it's clickable
+            Row(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                Icon(
+                  Icons.auto_awesome,
+                  size: 16,
+                  color: Color(0xFF3B82F6),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
+                SizedBox(width: 4),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: Colors.black54,
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

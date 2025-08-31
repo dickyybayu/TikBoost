@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/theme_notifier.dart';
+import 'settings_detail_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeNotifier themeNotifier;
@@ -44,26 +45,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           children: [
             // Profile Section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsDetailScreen(
+                      themeNotifier: widget.themeNotifier,
+                      name: 'John Doe',
+                      email: 'john.doe@example.com',
+                    ),
                   ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: const Color(0xFFF5F1EE),
-                    child: const Icon(
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: const Color(0xFFF5F1EE),
+                      child: const Icon(
                       Icons.person_rounded,
                       size: 30,
                       color: Color(0xFF8B7355),
@@ -93,13 +108,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
                 ],
               ),
+            ),
             ),
 
             const SizedBox(height: 24),

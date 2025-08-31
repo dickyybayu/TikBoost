@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ai_content_generator_screen.dart';
 
 class AIContentScreen extends StatelessWidget {
   const AIContentScreen({super.key});
@@ -32,47 +33,89 @@ class AIContentScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'AI Content Suggestions',
+              'AI Content Assistant',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
+            const SizedBox(height: 8),
+            const Text(
+              'Create content for your products using AI insights from trending TikTok data',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+                height: 1.4,
+              ),
+            ),
             const SizedBox(height: 20),
             
-            // Craft Compelling Copywriting Card
+            // Generate Content for Your Products Card
             _buildContentCard(
-              'Craft Compelling Copywriting',
-              'Generate engaging product descriptions and scripts for your live sessions.',
+              'Generate Content for Your Products',
+              'Create compelling descriptions and scripts based on your products and current TikTok trends.',
               const Color(0xFFFAE8D4),
-              Icons.edit_rounded,
+              Icons.auto_awesome,
               'Generate',
-              () {},
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AIContentGeneratorScreen(
+                      contentType: 'copywriting',
+                      title: 'Generate Content',
+                      description: 'Create compelling copy that converts viewers into customers using AI insights from trending TikTok data.',
+                    ),
+                  ),
+                );
+              },
             ),
             
             const SizedBox(height: 16),
             
-            // Optimize Live Session Timing Card
+            // Optimize Your Live Sessions Card
             _buildContentCard(
-              'Optimize Live Session Timing',
-              'Discover the best times to go live based on your audience\'s activity patterns.',
+              'Optimize Your Live Sessions',
+              'Get AI recommendations for timing, content, and engagement strategies based on real-time data.',
               const Color(0xFFF5F1EE),
-              Icons.access_time_rounded,
-              'View',
-              () {},
+              Icons.trending_up,
+              'Get Tips',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AIContentGeneratorScreen(
+                      contentType: 'script',
+                      title: 'Live Session Optimizer',
+                      description: 'Get AI-powered recommendations to improve your live session performance using trending data.',
+                    ),
+                  ),
+                );
+              },
             ),
             
             const SizedBox(height: 16),
             
-            // Match with the Right Host Card
+            // Trending Insights Card
             _buildContentCard(
-              'Match with the Right Host',
-              'Find hosts whose style and audience align with your products.',
+              'Trending Insights',
+              'Discover what\'s trending on TikTok and how to adapt it for your products.',
               const Color(0xFFF0F7F0),
-              Icons.handshake_rounded,
-              'Find Hosts',
-              () {},
+              Icons.insights,
+              'View Trends',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AIContentGeneratorScreen(
+                      contentType: 'insights',
+                      title: 'Trending Insights',
+                      description: 'Explore current TikTok trends and get AI suggestions on how to incorporate them with your products.',
+                    ),
+                  ),
+                );
+              },
             ),
             
             const SizedBox(height: 16),
@@ -83,8 +126,19 @@ class AIContentScreen extends StatelessWidget {
               'Create attractive product bundles to increase sales and customer satisfaction.',
               const Color(0xFFEAE3D2),
               Icons.inventory_2_rounded,
-              'Create Bundle',
-              () {},
+              'Generate',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AIContentGeneratorScreen(
+                      contentType: 'description',
+                      title: 'Generate Product Description',
+                      description: 'Create detailed and persuasive product descriptions that highlight key features and benefits.',
+                    ),
+                  ),
+                );
+              },
             ),
             
             const SizedBox(height: 32),

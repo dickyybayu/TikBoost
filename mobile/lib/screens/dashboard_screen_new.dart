@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_constants.dart';
 import '../widgets/dashboard_widgets.dart';
+import 'live_performance_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final VoidCallback? onSettingsPressed;
@@ -36,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Today's Performance",
+              "Your Content",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -45,7 +46,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             
-            // Live Stream Performance Card
+            // Your Live Stream Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -56,7 +57,7 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Image placeholder for the decorative element
+                  // Live Stream Preview
                   Container(
                     width: double.infinity,
                     height: 120,
@@ -64,15 +65,40 @@ class DashboardScreen extends StatelessWidget {
                       color: const Color(0xFFE8DDD4),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.nature_people_rounded,
-                      size: 40,
-                      color: Color(0xFF8B7355),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Icon(
+                            Icons.play_circle_fill,
+                            size: 50,
+                            color: Color(0xFF8B7355),
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'LIVE',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Live Stream Performance',
+                    'Your Live Stream',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -81,7 +107,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Track your live stream\'s real-time metrics and engagement.',
+                    'Currently streaming: "Summer Fashion Collection" • 1,250 viewers',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
@@ -90,17 +116,25 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Updated 5 minutes ago',
+                    'Click for AI insights & performance analytics',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black45,
+                      color: Color(0xFF3B82F6),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LivePerformanceScreen(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3B82F6),
                         foregroundColor: Colors.white,
@@ -112,7 +146,7 @@ class DashboardScreen extends StatelessWidget {
                           vertical: 12,
                         ),
                       ),
-                      child: const Text('View Details'),
+                      child: const Text('View AI Insights'),
                     ),
                   ),
                 ],
@@ -123,7 +157,7 @@ class DashboardScreen extends StatelessWidget {
             
             // Key Metrics Section
             const Text(
-              'Key Metrics',
+              'Quick Stats',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -137,7 +171,7 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildMetricCard(
-                    'Viewers',
+                    'Current Viewers',
                     '1,250',
                     '+12%',
                     true,
@@ -147,10 +181,10 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildMetricCard(
-                    'Engagement Rate',
-                    '15.2%',
-                    '-3%',
-                    false,
+                    'Today\'s Sales',
+                    '42 items',
+                    '+8%',
+                    true,
                     const Color(0xFFF0F0F0),
                   ),
                 ),
@@ -160,9 +194,9 @@ class DashboardScreen extends StatelessWidget {
             
             // Revenue Card
             _buildMetricCard(
-              'Revenue',
+              'Today\'s Revenue',
               'Rp 5,750,000',
-              '+8%',
+              '+8% from yesterday',
               true,
               const Color(0xFFF0F0F0),
               isWide: true,
@@ -172,7 +206,7 @@ class DashboardScreen extends StatelessWidget {
             
             // Recommendations Section
             const Text(
-              'Recommendations',
+              'AI Recommendations',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -203,17 +237,27 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Boost Your Sales with AI',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              size: 20,
+                              color: Color(0xFF3B82F6),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'AI Boost Available',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Get personalized recommendations to improve your live commerce performance.',
+                          'Your content is performing well! Get AI-powered insights to optimize engagement and increase sales.',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
@@ -224,18 +268,18 @@ class DashboardScreen extends StatelessWidget {
                         Row(
                           children: [
                             const Text(
-                              'Get Recommendations',
+                              'Get AI Insights',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                                color: Color(0xFF3B82F6),
                               ),
                             ),
                             const SizedBox(width: 4),
                             const Icon(
                               Icons.arrow_forward_rounded,
                               size: 16,
-                              color: Colors.black87,
+                              color: Color(0xFF3B82F6),
                             ),
                           ],
                         ),
@@ -252,9 +296,9 @@ class DashboardScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.person_rounded,
+                        Icons.psychology,
                         size: 40,
-                        color: Color(0xFF8B7355),
+                        color: Color(0xFF3B82F6),
                       ),
                     ),
                   ),

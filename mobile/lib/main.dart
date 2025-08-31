@@ -7,15 +7,30 @@ import 'screens/ai_content_screen.dart';
 import 'screens/planner_screen.dart';
 import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+
 
 void main() {
   runApp(TikBoostApp());
 }
 
-class TikBoostApp extends StatelessWidget {
-  final ThemeNotifier _themeNotifier = ThemeNotifier();
-
+class TikBoostApp extends StatefulWidget {
   TikBoostApp({super.key});
+
+  @override
+  State<TikBoostApp> createState() => _TikBoostAppState();
+}
+
+class _TikBoostAppState extends State<TikBoostApp> {
+  final ThemeNotifier _themeNotifier = ThemeNotifier();
+  bool _isAuthenticated = false;
+
+  void _onLoginSuccess() {
+    setState(() {
+      _isAuthenticated = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +43,16 @@ class TikBoostApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: _themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
-          home: MainScreen(themeNotifier: _themeNotifier),
+          routes: {
+            '/dashboard': (context) => MainScreen(themeNotifier: _themeNotifier),
+            '/login': (context) => LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
+          },
+          home: _isAuthenticated
+              ? MainScreen(themeNotifier: _themeNotifier)
+              : LoginScreen(
+                  key: const Key('login'),
+                ),
         );
       },
     );
