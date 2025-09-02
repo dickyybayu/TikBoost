@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     
     # AI Services - Hugging Face Configuration
-    HUGGINGFACE_API_TOKEN: Optional[str] = "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"
+    HUGGINGFACE_API_TOKEN: Optional[str] = None  # Will be loaded from .env file
     HUGGINGFACE_MODEL_NAME: str = "Venturaa/mistral-recommender-merged-bf16"
     HUGGINGFACE_USE_LOCAL: bool = False  # Set to True if model is downloaded locally
     HUGGINGFACE_LOCAL_PATH: Optional[str] = None  # Path to local model if HUGGINGFACE_USE_LOCAL is True
@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     MODEL_TOP_P: float = 0.9
     MODEL_TOP_K: int = 50
     MODEL_DO_SAMPLE: bool = True
+    
+    # Model Optimization Settings - BACKUP: Set USE_QUANTIZATION=False to rollback
+    USE_QUANTIZATION: bool = False          # Enable/disable quantization (True = faster, False = original)
+    QUANTIZATION_BITS: int = 8              # 8-bit or 4-bit quantization (8 = better quality, 4 = faster)
+    USE_OPTIMIZED_GENERATION: bool = True   # Enable optimized generation parameters
     
     # External APIs
     TIKTOK_API_KEY: Optional[str] = None

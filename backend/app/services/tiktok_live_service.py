@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 from typing import Optional, Dict, Any
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
@@ -8,38 +9,81 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 class TikTokLiveService:
-    def __init__(self):
-        self.tokenizer = None
-        self.model = None
-        self.is_initialized = False
+    _instance = None
+    _lock = asyncio.Lock()
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(TikTokLiveService, cls).__new__(cls)
+            cls._instance._initialized = False
+            cls._instance.tokenizer = None
+            cls._instance.model = None
+            cls._instance._is_loading = False
+        return cls._instance
         
     async def initialize(self):
-        """Initialize the fine-tuned Mistral model"""
-        try:
-            logger.info(f"Loading model: {settings.HUGGINGFACE_MODEL_NAME}")
+        """Initialize the fine-tuned Mistral model - only once"""
+        async with self._lock:
+            if self._initialized:
+                logger.info("Model already initialized, skipping...")
+                return
+                
+            if self._is_loading:
+                logger.info("Model is already loading, waiting...")
+                while self._is_loading:
+                    await asyncio.sleep(1)
+                return
+                
+            self._is_loading = True
             
-            # Load tokenizer
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                settings.HUGGINGFACE_MODEL_NAME,
-                token=settings.HUGGINGFACE_API_TOKEN,
-                trust_remote_code=True
-            )
-            
-            # Load model
-            self.model = AutoModelForCausalLM.from_pretrained(
-                settings.HUGGINGFACE_MODEL_NAME,
-                token=settings.HUGGINGFACE_API_TOKEN,
-                torch_dtype=torch.bfloat16,
-                device_map="auto",
-                trust_remote_code=True
-            )
-            
-            self.is_initialized = True
-            logger.info("TikTok Live model initialized successfully")
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize model: {str(e)}")
-            raise e
+            try:
+                logger.info(f"Loading model: {settings.HUGGINGFACE_MODEL_NAME}")
+                
+                # Load tokenizer
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    settings.HUGGINGFACE_MODEL_NAME,
+                    token=settings.HUGGINGFACE_API_TOKEN,
+                    trust_remote_code=True
+                )
+                
+                # Prepare model loading arguments
+                model_kwargs = {
+                    "token": settings.HUGGINGFACE_API_TOKEN,
+                    "trust_remote_code": True,
+                    "device_map": "auto"
+                }
+                
+                # Apply quantization if enabled (BACKUP: set USE_QUANTIZATION=False to rollback)
+                if settings.USE_QUANTIZATION:
+                    logger.info(f"🚀 Quantization enabled: {settings.QUANTIZATION_BITS}-bit")
+                    if settings.QUANTIZATION_BITS == 8:
+                        model_kwargs["load_in_8bit"] = True
+                    elif settings.QUANTIZATION_BITS == 4:
+                        model_kwargs["load_in_4bit"] = True
+                        model_kwargs["bnb_4bit_compute_dtype"] = torch.bfloat16
+                        model_kwargs["bnb_4bit_quant_type"] = "nf4"
+                else:
+                    logger.info("📊 Using original model (no quantization)")
+                    model_kwargs["torch_dtype"] = torch.bfloat16
+                
+                # Load model
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    settings.HUGGINGFACE_MODEL_NAME,
+                    **model_kwargs
+                )
+                
+                self._initialized = True
+                logger.info("TikTok Live model initialized successfully!")
+                
+            except Exception as e:
+                logger.error(f"Failed to initialize model: {str(e)}")
+                raise e
+            finally:
+                self._is_loading = False
+    
+    def is_initialized(self) -> bool:
+        """Check if model is initialized"""
+        return self._initialized and self.model is not None and self.tokenizer is not None
     
     def _create_prompt(self, product_data: Dict[str, Any]) -> str:
         """Create prompt based on your fine-tuning format"""
@@ -59,8 +103,16 @@ Event         : {product_data.get('event_type', '')}
     
     async def generate_live_recommendations(self, product_data: Dict[str, Any]) -> Dict[str, str]:
         """Generate TikTok Live selling recommendations"""
-        if not self.is_initialized:
-            await self.initialize()
+        if not self._initialized:
+            return {
+                "success": False,
+                "error": "Model not initialized. Please call /tiktok/model/initialize first.",
+                "recommendations": {
+                    "copy": "Model not ready",
+                    "time": "Model not ready", 
+                    "bundle": "Model not ready"
+                }
+            }
         
         try:
             # Create prompt
@@ -80,15 +132,34 @@ Event         : {product_data.get('event_type', '')}
                 return_tensors="pt",
             ).to(self.model.device)
             
-            # Generate response
+            # Generate response with optimized parameters
+            generation_kwargs = {
+                "max_new_tokens": settings.MAX_NEW_TOKENS,
+                "pad_token_id": self.tokenizer.eos_token_id
+            }
+            
+            # Apply optimization settings (BACKUP: set USE_OPTIMIZED_GENERATION=False to use original)
+            if settings.USE_OPTIMIZED_GENERATION:
+                # Optimized for speed
+                generation_kwargs.update({
+                    "do_sample": False,          # Greedy decoding (faster than sampling)
+                    "num_beams": 1,             # No beam search (faster)
+                    "temperature": 1.0,         # Not used with do_sample=False
+                    "top_p": 1.0,              # Not used with do_sample=False
+                    "top_k": 0                 # Not used with do_sample=False
+                })
+            else:
+                # Original sampling parameters
+                generation_kwargs.update({
+                    "temperature": settings.MODEL_TEMPERATURE,
+                    "top_p": settings.MODEL_TOP_P,
+                    "top_k": settings.MODEL_TOP_K,
+                    "do_sample": settings.MODEL_DO_SAMPLE
+                })
+            
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=settings.MAX_NEW_TOKENS,
-                temperature=settings.MODEL_TEMPERATURE,
-                top_p=settings.MODEL_TOP_P,
-                top_k=settings.MODEL_TOP_K,
-                do_sample=settings.MODEL_DO_SAMPLE,
-                pad_token_id=self.tokenizer.eos_token_id
+                **generation_kwargs
             )
             
             # Decode response
@@ -157,11 +228,9 @@ Event         : {product_data.get('event_type', '')}
         """Get information about the loaded model"""
         return {
             "model_name": settings.HUGGINGFACE_MODEL_NAME,
-            "is_initialized": self.is_initialized,
+            "is_initialized": self._initialized,
+            "is_loading": self._is_loading,
             "device": str(self.model.device) if self.model else "not loaded",
             "model_type": "Fine-tuned Mistral for TikTok Live Selling",
             "supported_format": "COPY, TIME, BUNDLE recommendations"
         }
-
-# Global instance
-tiktok_live_service = TikTokLiveService()

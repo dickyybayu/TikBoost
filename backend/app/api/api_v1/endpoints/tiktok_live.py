@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
-from app.services.tiktok_live_service import tiktok_live_service
 import logging
+from app.dependencies import get_tiktok_live_service
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +24,10 @@ class LiveRecommendationsResponse(BaseModel):
     error: Optional[str] = None
 
 @router.get("/model/info")
-async def get_model_info():
+async def get_model_info(service = Depends(get_tiktok_live_service)):
     """Get information about the TikTok Live model"""
     try:
-        model_info = tiktok_live_service.get_model_info()
+        model_info = service.get_model_info()
         return {
             "status": "success",
             "data": model_info
@@ -37,21 +37,21 @@ async def get_model_info():
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/model/initialize")
-async def initialize_model():
+async def initialize_model(service = Depends(get_tiktok_live_service)):
     """Initialize the TikTok Live model"""
     try:
-        await tiktok_live_service.initialize()
+        await service.initialize()
         return {
             "status": "success",
             "message": "TikTok Live model initialized successfully",
-            "model_info": tiktok_live_service.get_model_info()
+            "model_info": service.get_model_info()
         }
     except Exception as e:
         logger.error(f"Error initializing model: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to initialize model: {str(e)}")
 
 @router.post("/live/recommendations", response_model=LiveRecommendationsResponse)
-async def generate_live_recommendations(product_input: LiveProductInput):
+async def generate_live_recommendations(product_input: LiveProductInput, service = Depends(get_tiktok_live_service)):
     """Generate TikTok Live selling recommendations (COPY, TIME, BUNDLE)"""
     try:
         product_data = {
@@ -62,7 +62,7 @@ async def generate_live_recommendations(product_input: LiveProductInput):
             "event_type": product_input.event_type
         }
         
-        result = await tiktok_live_service.generate_live_recommendations(product_data)
+        result = await service.generate_live_recommendations(product_data)
         
         return LiveRecommendationsResponse(
             success=result["success"],
@@ -77,10 +77,30 @@ async def generate_live_recommendations(product_input: LiveProductInput):
         raise HTTPException(status_code=500, detail=f"Failed to generate recommendations: {str(e)}")
 
 @router.post("/test/model")
-async def test_model():
+async def test_model(service = Depends(get_tiktok_live_service)):
     """Test the model with sample TikTok Live data"""
     try:
-        result = await tiktok_live_service.test_model()
+        # Check if model is initialized
+        model_info = service.get_model_info()
+        
+        if not model_info["is_initialized"]:
+            return {
+                "status": "warning",
+                "message": "Model is not initialized yet. Please wait for model loading to complete or call /tiktok/model/initialize",
+                "model_status": {
+                    "is_initialized": model_info["is_initialized"],
+                    "is_loading": model_info.get("is_loading", False)
+                },
+                "sample_input": {
+                    "product_name": "Glowing Rok",
+                    "discounted_price": 199536,
+                    "stock_remaining": 463,
+                    "live_viewers": 1669,
+                    "event_type": "bonus ongkir"
+                }
+            }
+        
+        result = await service.test_model()
         
         return {
             "status": "success",
