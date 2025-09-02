@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import AnyHttpUrl, EmailStr, field_validator
 from pydantic_settings import BaseSettings
 import secrets
+from app.core.config import settings
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     
     # AI Services - Hugging Face Configuration
-    HUGGINGFACE_API_TOKEN: Optional[str] = "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"
+    HUGGINGFACE_API_TOKEN: Optional[str] = {settings.HUGGINGFACE_API_TOKEN}
     HUGGINGFACE_MODEL_NAME: str = "Venturaa/mistral-recommender-merged-bf16"
     HUGGINGFACE_USE_LOCAL: bool = False  # Set to True if model is downloaded locally
     HUGGINGFACE_LOCAL_PATH: Optional[str] = None  # Path to local model if HUGGINGFACE_USE_LOCAL is True
