@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +13,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _error;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
   void _login() async {
     setState(() {
@@ -33,74 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       setState(() {
         _error = 'Login failed. Please check your credentials.';
-      });
-    }
-  }
-
-  Future<void> _loginWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final account = await _googleSignIn.signIn();
-      if (account == null) {
-        setState(() {
-          _isLoading = false;
-        });
-        return; // user cancelled
-      }
-      final auth = await account.authentication;
-      final idToken = auth.idToken;
-      if (idToken == null) throw Exception('Missing Google idToken');
-      final token = await ApiService().loginWithGoogle(idToken);
-      setState(() {
-        _isLoading = false;
-      });
-      if (token != null && mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        setState(() {
-          _error = 'Google sign-in failed.';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = 'Google sign-in error: ${e.toString()}';
-      });
-    }
-  }
-
-  Future<void> _loginWithTikTok() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final startUrl = await ApiService().getTikTokAuthUrl();
-      if (startUrl == null) throw Exception('TikTok not configured');
-      final callbackScheme = 'tikboost';
-      final result = await FlutterWebAuth2.authenticate(
-        url: startUrl.toString(),
-        callbackUrlScheme: callbackScheme,
-      );
-      final uri = Uri.parse(result);
-      final token = uri.queryParameters['token'];
-      setState(() {
-        _isLoading = false;
-      });
-      if (token != null && mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        setState(() {
-          _error = 'TikTok sign-in failed.';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = 'TikTok sign-in error: ${e.toString()}';
       });
     }
   }
@@ -133,22 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _login,
                 child: _isLoading ? const CircularProgressIndicator() : const Text('Login'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : _loginWithGoogle,
-                child: const Text('Continue with Google'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : _loginWithTikTok,
-                child: const Text('Continue with TikTok'),
               ),
             ),
             const SizedBox(height: 12),

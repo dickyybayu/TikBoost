@@ -1,14 +1,27 @@
-# Minimal backend deps for auth-only server
+# Backend dependencies for TikBoost
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
+# Database
 sqlalchemy==2.0.23
 
+# Auth
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 email-validator==2.2.0
 
+# Environment
 python-dotenv==1.0.0
+
+# AI/ML Dependencies for Fine-tuned Mistral Model
+torch>=2.2.0
+transformers>=4.36.0
+tokenizers>=0.15.0
+huggingface-hub>=0.19.0
+
+# Additional utilities
+aiofiles==23.2.1
+httpx==0.25.2

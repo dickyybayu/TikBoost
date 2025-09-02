@@ -11,21 +11,8 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "TikBoost API"
     SERVER_HOST: AnyHttpUrl = "http://localhost"
     
-    # CORS origins
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-        "http://localhost:3000",
-        "http://localhost:8080", 
-        "http://localhost:4200",
-    ]
-
-    @field_validator("BACKEND_CORS_ORIGINS", mode='before')
-    @classmethod
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
+    # CORS origins - simplified
+    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8080,http://localhost:4200"
 
     PROJECT_NAME: str = "TikBoost"
     
@@ -36,16 +23,17 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     
     # AI Services - Hugging Face Configuration
-    HUGGINGFACE_API_TOKEN: Optional[str] = None
-    HUGGINGFACE_MODEL_NAME: str = "your-username/your-fine-tuned-model"
+    HUGGINGFACE_API_TOKEN: Optional[str] = "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"
+    HUGGINGFACE_MODEL_NAME: str = "Venturaa/mistral-recommender-merged-bf16"
     HUGGINGFACE_USE_LOCAL: bool = False  # Set to True if model is downloaded locally
     HUGGINGFACE_LOCAL_PATH: Optional[str] = None  # Path to local model if HUGGINGFACE_USE_LOCAL is True
     
     # Model Parameters
-    MAX_TOKEN_LENGTH: int = 1000
+    MAX_NEW_TOKENS: int = 40  # Changed from MAX_TOKEN_LENGTH to match your example
     MODEL_TEMPERATURE: float = 0.7
     MODEL_TOP_P: float = 0.9
     MODEL_TOP_K: int = 50
+    MODEL_DO_SAMPLE: bool = True
     
     # External APIs
     TIKTOK_API_KEY: Optional[str] = None
@@ -99,6 +87,11 @@ class Settings(BaseSettings):
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 100
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Convert CORS origins string to list"""
+        return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",")]
     
     class Config:
         case_sensitive = True

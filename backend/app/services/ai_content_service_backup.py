@@ -19,7 +19,7 @@ class AIContentService:
         self.api_token = settings.HUGGINGFACE_API_TOKEN
         
         # Model parameters
-        self.max_length = settings.MAX_TOKEN_LENGTH
+        self.max_length = settings.MAX_NEW_TOKENS
         self.temperature = settings.MODEL_TEMPERATURE
         self.top_p = settings.MODEL_TOP_P
         self.top_k = settings.MODEL_TOP_K
