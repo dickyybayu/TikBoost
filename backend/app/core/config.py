@@ -23,7 +23,6 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
     
-    # AI Services - Hugging Face Configuration
     HUGGINGFACE_API_TOKEN: Optional[str] = {settings.HUGGINGFACE_API_TOKEN}
     HUGGINGFACE_MODEL_NAME: str = "Venturaa/mistral-recommender-merged-bf16"
     HUGGINGFACE_USE_LOCAL: bool = False  # Set to True if model is downloaded locally
