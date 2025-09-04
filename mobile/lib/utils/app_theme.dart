@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
@@ -13,12 +14,13 @@ class AppTheme {
       brightness: isDark ? Brightness.dark : Brightness.light,
       primarySwatch: Colors.orange,
       scaffoldBackgroundColor: AppColors.background(isDark),
+      fontFamily: GoogleFonts.poppins().fontFamily,
       
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background(isDark),
         elevation: 0,
         systemOverlayStyle: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -26,46 +28,46 @@ class AppTheme {
         iconTheme: IconThemeData(color: AppColors.primaryText(isDark)),
       ),
       
-      textTheme: TextTheme(
-        headlineLarge: TextStyle(
+      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+        headlineLarge: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 32,
           fontWeight: FontWeight.bold,
         ),
-        headlineMedium: TextStyle(
+        headlineMedium: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
-        headlineSmall: TextStyle(
+        headlineSmall: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
-        titleLarge: TextStyle(
+        titleLarge: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
-        titleMedium: TextStyle(
+        titleMedium: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
-        titleSmall: TextStyle(
+        titleSmall: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
-        bodyLarge: TextStyle(
+        bodyLarge: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 16,
         ),
-        bodyMedium: TextStyle(
+        bodyMedium: GoogleFonts.poppins(
           color: AppColors.secondaryText(isDark),
           fontSize: 14,
         ),
-        bodySmall: TextStyle(
+        bodySmall: GoogleFonts.poppins(
           color: AppColors.secondaryText(isDark),
           fontSize: 12,
         ),

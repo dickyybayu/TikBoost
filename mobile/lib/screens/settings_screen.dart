@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/theme_notifier.dart';
+import '../services/user_service.dart';
 import 'settings_detail_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -52,8 +53,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   MaterialPageRoute(
                     builder: (_) => SettingsDetailScreen(
                       themeNotifier: widget.themeNotifier,
-                      name: 'John Doe',
-                      email: 'john.doe@example.com',
+                      name: UserService.currentUsername,
+                      email: UserService.currentEmail,
                     ),
                   ),
                 );
@@ -89,8 +90,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'John Doe',
+                        Text(
+                          UserService.currentUsername,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -99,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'john.doe@example.com',
+                          UserService.currentEmail,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -408,7 +409,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context); // Go back to main screen
+              // Clear user data
+              UserService.logout();
+              // Navigate to login screen and clear all previous routes
+              Navigator.pushNamedAndRemoveUntil(
+                context, 
+                '/login', 
+                (route) => false,
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Signed out successfully!')),
               );

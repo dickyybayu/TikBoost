@@ -40,6 +40,26 @@ class ApiService {
     }
   }
 
+  // Get user profile with token
+  Future<Map<String, dynamic>?> getUserProfile(String token) async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl$apiPrefix/auth/me'),
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Backend expects email, username, password JSON and returns 200 on success
   Future<bool> register({
     required String email,

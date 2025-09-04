@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/subscription_service.dart';
+import '../models/subscription_models.dart';
 
 class AIContentGeneratorScreen extends StatefulWidget {
   final String contentType;
@@ -26,6 +28,7 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
   String _selectedFormat = 'Short & Punchy';
   bool _isGenerating = false;
   String? _generatedContent;
+  TopProduct? _selectedProduct;
 
   final List<String> _tones = [
     'Enthusiastic',
@@ -45,6 +48,16 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Pre-select first top product if available
+    final topProducts = TopProductsService.userTopProducts;
+    if (topProducts.isNotEmpty) {
+      _selectedProduct = topProducts.first;
+      _productNameController.text = _selectedProduct!.name;
+      _keyFeaturesController.text = _selectedProduct!.description;
+    }
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -109,6 +122,12 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            
+            // Top Products Dropdown (if available)
+            if (TopProductsService.hasTopProducts) ...[
+              _buildTopProductsDropdown(),
+              const SizedBox(height: 16),
+            ],
             
             _buildInputField(
               'Product Name',
@@ -411,7 +430,10 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
   void _generateContent() async {
     if (_productNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a product name')),
+        const SnackBar(
+          content: Text('Please enter a product name'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -421,16 +443,74 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
       _generatedContent = null;
     });
 
-    // Simulate AI generation delay
+    // **PLACEHOLDER**: This is where you would integrate with your AI model
+    // For now, we'll show dummy generated content
+    
+    // Simulate API call delay
     await Future.delayed(const Duration(seconds: 3));
 
-    // Mock generated content based on content type
-    String generatedText = _getMockGeneratedContent();
+    if (mounted) {
+      setState(() {
+        _isGenerating = false;
+        _generatedContent = _generateEnhancedContent();
+      });
+    }
+  }
 
-    setState(() {
-      _isGenerating = false;
-      _generatedContent = generatedText;
-    });
+  String _generateEnhancedContent() {
+    final productName = _productNameController.text;
+    final isTopProduct = _selectedProduct != null;
+    
+    // **PLACEHOLDER**: Enhanced dummy content based on whether it's a top product
+    if (widget.contentType == 'copywriting') {
+      if (isTopProduct) {
+        final salesCount = _selectedProduct!.salesCount;
+        return """🔥 PRODUK TERLARIS! 🔥
+
+✨ $productName ✨
+${_selectedProduct!.description}
+
+🎯 Sudah $salesCount orang memilih produk ini!
+📈 Trending di kategori ${_selectedProduct!.category}
+⭐ Rating ${_selectedProduct!.rating}/5.0
+
+${_generateCopywritingByTone()}
+
+⚡ Buruan! Stok terbatas karena tingginya permintaan!
+
+#TikTokShop #$productName #Trending #${_selectedProduct!.category}""";
+      } else {
+        return """✨ $productName ✨
+
+${_keyFeaturesController.text.isNotEmpty ? _keyFeaturesController.text : 'Produk berkualitas tinggi yang wajib Anda miliki!'}
+
+${_generateCopywritingByTone()}
+
+🛒 Pesan sekarang dan rasakan perbedaannya!
+
+#TikTokShop #$productName""";
+      }
+    } else if (widget.contentType == 'script') {
+      if (isTopProduct) {
+        return """\"Halo viewers! Selamat datang di live streaming hari ini! 👋
+
+Hari ini saya mau bahas produk yang lagi VIRAL banget - $productName!
+
+Kalian tau gak? Ini adalah produk terlaris nomor ${TopProductsService.userTopProducts.indexOf(_selectedProduct!) + 1} di kategori ${_selectedProduct!.category}! 
+
+Sudah ${_selectedProduct!.salesCount} orang yang beli dan rata-rata kasih rating ${_selectedProduct!.rating} bintang!
+
+${_selectedProduct!.description}
+
+Tapi tunggu dulu... khusus untuk live streaming hari ini, ada PROMO SPECIAL!
+
+Siapa yang mau order? Ketik 'SAYA MINAT' di chat sekarang!\"
+        
+**PLACEHOLDER**: Script ini akan dioptimalkan dengan AI model Anda untuk engagement maksimal berdasarkan data produk terlaris.""";
+      }
+    }
+    
+    return _getMockGeneratedContent();
   }
 
   String _getMockGeneratedContent() {
@@ -563,5 +643,98 @@ class _AIContentGeneratorScreenState extends State<AIContentGeneratorScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildTopProductsDropdown() {
+    final topProducts = TopProductsService.userTopProducts;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih dari Produk Terlaris',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<TopProduct>(
+              value: _selectedProduct,
+              hint: const Text('Pilih produk terlaris'),
+              items: [
+                const DropdownMenuItem<TopProduct>(
+                  value: null,
+                  child: Text('Manual input'),
+                ),
+                ...topProducts.map((product) {
+                  return DropdownMenuItem<TopProduct>(
+                    value: product,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          '${product.salesCount} terjual • ${product.category}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+              onChanged: (TopProduct? product) {
+                setState(() {
+                  _selectedProduct = product;
+                  if (product != null) {
+                    _productNameController.text = product.name;
+                    _keyFeaturesController.text = product.description;
+                  } else {
+                    _productNameController.clear();
+                    _keyFeaturesController.clear();
+                  }
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _generateCopywritingByTone() {
+    switch (_selectedTone) {
+      case 'Enthusiastic':
+        return '🎉 WOW! Ini dia yang lagi viral! Jangan sampai ketinggalan tren!';
+      case 'Professional':
+        return '✅ Kualitas terjamin dengan standar internasional. Investasi terbaik untuk Anda.';
+      case 'Casual':
+        return '😊 Guys, ini sih emang juara! Recommended banget deh!';
+      case 'Friendly':
+        return '💝 Halo sahabat! Aku mau share produk favorit yang bikin hidup jadi lebih mudah nih!';
+      case 'Confident':
+        return '💪 PASTI suka! Garansi 100% atau uang kembali. Berani jamin karena kualitasnya memang top!';
+      case 'Urgent':
+        return '⏰ PROMO TERBATAS! Hanya tersisa beberapa unit lagi. Jangan sampai menyesal!';
+      default:
+        return '✨ Produk pilihan yang tepat untuk Anda!';
+    }
   }
 }

@@ -3,7 +3,7 @@ import 'utils/app_theme.dart';
 import 'utils/app_constants.dart';
 import 'utils/theme_notifier.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/ai_content_screen.dart';
+import 'screens/content_studio_screen.dart';
 import 'screens/planner_screen.dart';
 import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
@@ -25,12 +25,6 @@ class TikBoostApp extends StatefulWidget {
 class _TikBoostAppState extends State<TikBoostApp> {
   final ThemeNotifier _themeNotifier = ThemeNotifier();
   bool _isAuthenticated = false;
-
-  void _onLoginSuccess() {
-    setState(() {
-      _isAuthenticated = true;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +74,8 @@ class _MainScreenState extends State<MainScreen> {
       label: 'Home',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.star_rounded),
-      label: 'Recommendations',
+      icon: Icon(Icons.auto_awesome_rounded),
+      label: 'Content Studio',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.calendar_today_rounded),
@@ -114,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
           onSettingsPressed: () => _navigateToSettings(),
         );
       case 1:
-        return const AIContentScreen();
+        return const ContentStudioScreen();
       case 2:
         return const PlannerScreen();
       case 3:
