@@ -19,6 +19,7 @@ class SubscriptionService {
       expiryDate: DateTime.now().add(const Duration(days: 30)), // 30 days trial
       isActive: true,
     );
+    print('🎉 PREMIUM UPGRADED! isPremium: ${_currentSubscription.isPremium}');
   }
 
   static void downgradeToFree() {
@@ -28,10 +29,19 @@ class SubscriptionService {
       isActive: true,
     );
   }
+
+  // Method untuk reset subscription ke default
+  static void resetToDefault() {
+    _currentSubscription = UserSubscription(
+      userId: 'user_1',
+      tier: subscriptionTiers.first, // Reset ke free tier
+      isActive: true,
+    );
+  }
 }
 
 class TopProductsService {
-  static List<TopProduct> _userTopProducts = [];
+  static List<TopProduct> _userTopProducts = []; // Mulai dengan list kosong
 
   static List<TopProduct> get userTopProducts => _userTopProducts;
 
@@ -45,7 +55,22 @@ class TopProductsService {
 
   static bool get hasTopProducts => _userTopProducts.isNotEmpty;
 
-  // Dummy data untuk contoh
+  // Method untuk menghapus produk
+  static void removeProduct(String productId) {
+    _userTopProducts.removeWhere((product) => product.id == productId);
+  }
+
+  // Method untuk clear semua produk
+  static void clearAllProducts() {
+    _userTopProducts.clear();
+  }
+
+  // Method untuk reset products saja
+  static void resetProducts() {
+    _userTopProducts.clear();
+  }
+
+  // Dummy data untuk contoh (tidak auto-load)
   static List<TopProduct> getDummyTopProducts() {
     return [
       TopProduct(

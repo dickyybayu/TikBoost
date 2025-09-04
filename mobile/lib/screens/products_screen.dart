@@ -100,84 +100,31 @@ class _ProductsScreenState extends State<ProductsScreen> {
               const SizedBox(height: 32),
             ],
             
-            // Your Products Section
-            const Text(
-              'Your Products',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Your Product Cards (dummy data for now)
-            _buildProductCard(
-              context,
-              'assets/images/batik_scarf.jpg',
-              'Handmade Batik Scarf',
-              '120 sold today • Trending',
-            ),
-            const SizedBox(height: 12),
-            
-            _buildProductCard(
-              context,
-              'assets/images/wayang_kulit.jpg',
-              'Traditional Wayang Kulit',
-              '85 sold today • High interest',
-            ),
-            const SizedBox(height: 12),
-            
-            _buildProductCard(
-              context,
-              'assets/images/coffee_beans.jpg',
-              'Indonesian Coffee Beans',
-              '150 sold today • Top performer',
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Product Bundles Section (Premium Feature)
+            // Product Bundles Section (Free Feature)
             if (hasTopProducts) ...[
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Recommended Product Bundles',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  if (!SubscriptionService.isPremium)
-                    const Icon(
-                      Icons.lock,
-                      color: Colors.orange,
-                      size: 20,
-                    ),
-                ],
+              const Text(
+                'Recommended Product Bundles',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               const SizedBox(height: 16),
               
-              // Bundle Cards based on top products
-              if (SubscriptionService.isPremium) ...[
-                _buildBundleCardFromTopProducts(
-                  userTopProducts.take(2).toList(),
-                  'Cultural Heritage Bundle',
-                  'Save 15%',
-                ),
-                const SizedBox(height: 12),
-                
-                _buildBundleCardFromTopProducts(
-                  userTopProducts,
-                  'Complete Collection',
-                  'Save 20%',
-                ),
-              ] else ...[
-                _buildLockedBundleCard(),
-              ],
+              // Bundle Cards based on top products - Available for FREE
+              _buildBundleCardFromTopProducts(
+                userTopProducts.take(2).toList(),
+                'Cultural Heritage Bundle',
+                'Save 15%',
+              ),
+              const SizedBox(height: 12),
+              
+              _buildBundleCardFromTopProducts(
+                userTopProducts,
+                'Complete Collection',
+                'Save 20%',
+              ),
             ],
           ],
         ),
@@ -350,24 +297,41 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
           ),
           
-          // Action button
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(
-                    productName: product.name,
-                    soldCount: '${product.salesCount} terjual',
+          // Action buttons
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () {
+                  _showDeleteProductDialog(product);
+                },
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 20,
+                ),
+              ),
+              // Detail button only for premium users
+              if (SubscriptionService.isPremium)
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailScreen(
+                          productName: product.name,
+                          soldCount: '${product.salesCount} terjual',
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.blue,
+                    size: 16,
                   ),
                 ),
-              );
-            },
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.black54,
-              size: 16,
-            ),
+            ],
           ),
         ],
       ),
@@ -448,140 +412,31 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  Widget _buildLockedBundleCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.lock,
-            size: 32,
-            color: Colors.orange,
+  void _showDeleteProductDialog(TopProduct product) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Produk Terlaris'),
+        content: Text('Apakah Anda yakin ingin menghapus "${product.name}" dari daftar produk terlaris?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Product Bundle Generator',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Upgrade ke Premium untuk mendapatkan rekomendasi bundle produk yang strategic',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
-              // Navigate to premium upgrade
+              Navigator.pop(context);
+              TopProductsService.removeProduct(product.id);
+              setState(() {});
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Premium upgrade coming soon!'),
-                  backgroundColor: Colors.orange,
+                SnackBar(
+                  content: Text('${product.name} berhasil dihapus'),
+                  backgroundColor: Colors.green,
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('Upgrade to Premium'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductCard(BuildContext context, String imagePath, String productName, String productInfo) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Product image placeholder
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.image,
-              color: Colors.grey,
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 16),
-          
-          // Product info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  productName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  productInfo,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Action button
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(
-                    productName: productName,
-                    soldCount: productInfo,
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.black54,
-              size: 16,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
           ),
         ],
       ),

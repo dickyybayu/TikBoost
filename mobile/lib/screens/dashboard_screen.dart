@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../services/subscription_service.dart';
 import '../services/user_service.dart';
 import '../models/subscription_models.dart';
@@ -23,26 +24,52 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   UserSubscription? userSubscription;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadUserSubscription();
-    // Initialize demo user only if no user is logged in
-    if (!UserService.isLoggedIn) {
-      UserService.setDemoUser();
-    }
-  }
-
-  void _loadUserSubscription() {
-    setState(() {
-      userSubscription = SubscriptionService.currentSubscription;
+    // Periodic refresh every 2 seconds to catch premium changes
+    _refreshTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+      _loadUserSubscription();
     });
   }
 
   @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh subscription state when dependencies change
+    _loadUserSubscription();
+  }
+
+  @override
+  void didUpdateWidget(DashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Refresh when widget updates
+    _loadUserSubscription();
+  }
+
+  void _loadUserSubscription() {
+    final oldIsPremium = userSubscription?.isPremium ?? false;
+    setState(() {
+      userSubscription = SubscriptionService.currentSubscription;
+    });
+    final newIsPremium = userSubscription?.isPremium ?? false;
+    if (oldIsPremium != newIsPremium) {
+      print('🔄 Dashboard: Premium status changed from $oldIsPremium to $newIsPremium');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isPremium = userSubscription?.tier.name == 'Premium';
+    final isPremium = SubscriptionService.isPremium;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -75,6 +102,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     MaterialPageRoute(
                       builder: (context) => PremiumUpgradeScreen(
                         featureName: 'Dashboard Premium Features',
+                        onUpgradeSuccess: () {
+                          _loadUserSubscription();
+                        },
                       ),
                     ),
                   ).then((_) => _loadUserSubscription());
@@ -289,6 +319,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     MaterialPageRoute(
                       builder: (context) => PremiumUpgradeScreen(
                         featureName: 'Premium Features',
+                        onUpgradeSuccess: () {
+                          _loadUserSubscription();
+                        },
                       ),
                     ),
                   ).then((_) => _loadUserSubscription());
@@ -400,6 +433,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     MaterialPageRoute(
                       builder: (context) => PremiumUpgradeScreen(
                         featureName: 'Live Stream Performance',
+                        onUpgradeSuccess: () {
+                          _loadUserSubscription();
+                        },
                       ),
                     ),
                   ).then((_) => _loadUserSubscription());
@@ -558,7 +594,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildQuickActions() {
-    final isPremium = userSubscription?.tier.name == 'Premium';
+    final isPremium = SubscriptionService.isPremium;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,13 +655,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 colors: isPremium 
                   ? [Colors.red[400]!, Colors.pink[400]!]
                   : [Colors.grey[300]!, Colors.grey[400]!],
-                onTap: () {
+                onTap: isPremium ? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => LiveAnalysisScreen(),
                     ),
                   );
+                } : () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PremiumUpgradeScreen(
+                        featureName: 'Live Analysis',
+                        onUpgradeSuccess: () {
+                          _loadUserSubscription();
+                        },
+                      ),
+                    ),
+                  ).then((_) => _loadUserSubscription());
                 },
                 isLocked: !isPremium,
               ),
@@ -635,7 +683,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: _buildActionCard(
                 title: 'Products',
                 icon: Icons.inventory,
-                colors: [Colors.grey[400]!, Colors.grey[600]!],
+                colors: [Colors.green[400]!, Colors.teal[400]!],
                 onTap: () {
                   Navigator.push(
                     context,
@@ -720,7 +768,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showAnalyticsFeature() {
-    final isPremium = userSubscription?.tier.name == 'Premium';
+    final isPremium = SubscriptionService.isPremium;
     
     if (!isPremium) {
       showDialog(
@@ -743,6 +791,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   MaterialPageRoute(
                     builder: (context) => PremiumUpgradeScreen(
                       featureName: 'Analytics',
+                      onUpgradeSuccess: () {
+                        _loadUserSubscription();
+                      },
                     ),
                   ),
                 ).then((_) => _loadUserSubscription());

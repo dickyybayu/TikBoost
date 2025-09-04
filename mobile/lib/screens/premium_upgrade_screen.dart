@@ -251,9 +251,13 @@ class PremiumUpgradeScreen extends StatelessWidget {
       // Upgrade to premium
       SubscriptionService.upgradeToPremium();
       
+      // IMMEDIATELY call callback before showing dialog
+      onUpgradeSuccess?.call();
+      
       // Show success dialog
       showDialog(
         context: context,
+        barrierDismissible: false, // Force user to click OK
         builder: (context) => AlertDialog(
           title: const Text('Berhasil!'),
           content: const Text('Anda sekarang memiliki akses Premium. Selamat menikmati semua fitur TikBoost!'),
@@ -262,6 +266,7 @@ class PremiumUpgradeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context); // Close success dialog
                 Navigator.pop(context); // Go back to previous screen
+                // Call callback again for double refresh
                 onUpgradeSuccess?.call();
               },
               child: const Text('OK'),

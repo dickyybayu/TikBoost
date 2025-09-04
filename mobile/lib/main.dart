@@ -3,7 +3,7 @@ import 'utils/app_theme.dart';
 import 'utils/app_constants.dart';
 import 'utils/theme_notifier.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/content_studio_screen.dart';
+import 'screens/recommendations_screen.dart';
 import 'screens/planner_screen.dart';
 import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.auto_awesome_rounded),
-      label: 'Content Studio',
+      label: 'Recommendations',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.calendar_today_rounded),
@@ -108,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
           onSettingsPressed: () => _navigateToSettings(),
         );
       case 1:
-        return const ContentStudioScreen();
+        return const RecommendationsScreen();
       case 2:
         return const PlannerScreen();
       case 3:

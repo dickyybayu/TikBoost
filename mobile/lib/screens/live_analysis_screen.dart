@@ -56,9 +56,10 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                 MaterialPageRoute(
                   builder: (context) => PremiumUpgradeScreen(
                     featureName: 'Live Analysis Premium Features',
+                    onUpgradeSuccess: () => setState(() {}),
                   ),
                 ),
-              );
+              ).then((_) => setState(() {}));
             },
           ),
         ],
@@ -146,9 +147,10 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                     MaterialPageRoute(
                       builder: (context) => PremiumUpgradeScreen(
                         featureName: 'Live Analysis',
+                        onUpgradeSuccess: () => setState(() {}),
                       ),
                     ),
-                  );
+                  ).then((_) => setState(() {}));
                 },
                 icon: const Icon(Icons.upgrade),
                 label: const Text('Upgrade to Premium'),

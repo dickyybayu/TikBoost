@@ -53,9 +53,10 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                   MaterialPageRoute(
                     builder: (context) => PremiumUpgradeScreen(
                       featureName: 'Premium Analysis Features',
+                      onUpgradeSuccess: () => setState(() {}),
                     ),
                   ),
-                );
+                ).then((_) => setState(() {}));
               },
             ),
         ],
