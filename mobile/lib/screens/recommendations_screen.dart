@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/subscription_service.dart';
-import '../models/subscription_models.dart';
-import '../widgets/tikboost_logo.dart';
+import '../services/top_products_service.dart' as TopProducts;
+import '../models/product_models.dart';
 import 'premium_upgrade_screen.dart';
 import 'top_products_input_screen.dart';
 
@@ -19,7 +19,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasTopProducts = TopProductsService.hasTopProducts;
+        final hasTopProducts = TopProducts.TopProductsService.hasTopProducts;
     final isPremium = SubscriptionService.isPremium;
     
     return Scaffold(
@@ -28,10 +28,48 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TikBoostLogoIcon(size: 24),
-            SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF3B82F6),
+                    const Color(0xFF8B5CF6),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF3B82F6).withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF3B82F6).withOpacity(0.3),
+                    spreadRadius: 0,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 0,
+                    blurRadius: 5,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            SizedBox(width: 12),
             Text(
-              'Recommendations',
+              'AI Recommendations',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -90,10 +128,37 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.inventory_2_rounded,
-              size: 80,
-              color: Colors.grey[400],
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey[100],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.35),
+                    spreadRadius: 2,
+                    blurRadius: 25,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 0,
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    spreadRadius: 0,
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.inventory_2_rounded,
+                size: 60,
+                color: Colors.grey[500],
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -116,25 +181,64 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TopProductsInputScreen(
-                      onProductsAdded: () => setState(() {}),
-                    ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF3B82F6).withOpacity(0.2),
+                    spreadRadius: 0,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Input Produk Terlaris'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B82F6),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  BoxShadow(
+                    color: const Color(0xFF3B82F6).withOpacity(0.1),
+                    spreadRadius: 0,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TopProductsInputScreen(
+                        onProductsAdded: () => setState(() {}),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add_rounded, size: 20),
+                label: const Text(
+                  'Input Produk Terlaris',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ).copyWith(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.pressed)) {
+                        return const Color(0xFF2563EB);
+                      }
+                      return const Color(0xFF3B82F6);
+                    },
+                  ),
+                  overlayColor: MaterialStateProperty.all(
+                    Colors.white.withOpacity(0.1),
+                  ),
                 ),
               ),
             ),
@@ -170,7 +274,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   }
 
   Widget _buildTopProductsDisplay() {
-    final topProducts = TopProductsService.userTopProducts;
+    final topProducts = TopProducts.TopProductsService.userTopProducts;
     
     return Container(
       width: double.infinity,
@@ -209,15 +313,42 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.blue[600],
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF3B82F6),
+                          const Color(0xFF1E40AF),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF3B82F6).withOpacity(0.4),
+                          spreadRadius: 0,
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                        BoxShadow(
+                          color: const Color(0xFF3B82F6).withOpacity(0.2),
+                          spreadRadius: 0,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -275,19 +406,27 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue[400]!, Colors.purple[400]!],
+                    colors: [const Color(0xFF3B82F6), const Color(0xFF8B5CF6)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3B82F6).withOpacity(0.3),
+                      spreadRadius: 0,
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: const Icon(
-                  Icons.auto_awesome,
+                  Icons.auto_awesome_rounded,
                   color: Colors.white,
-                  size: 24,
+                  size: 26,
                 ),
               ),
               const SizedBox(width: 16),
@@ -318,32 +457,79 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isGenerating ? null : _generateRecommendations,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B82F6),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF3B82F6),
+                    const Color(0xFF8B5CF6),
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF3B82F6).withOpacity(0.3),
+                    spreadRadius: 0,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: _isGenerating
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              child: ElevatedButton(
+                onPressed: _isGenerating ? null : _generateRecommendations,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ).copyWith(
+                  overlayColor: MaterialStateProperty.all(
+                    Colors.white.withOpacity(0.1),
+                  ),
+                ),
+                child: _isGenerating
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Generating...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, size: 20),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Generate All Recommendations',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    )
-                  : const Text(
-                      'Generate All Recommendations',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+              ),
             ),
           ),
         ],
@@ -400,16 +586,49 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         // Copy All Button
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () => _copyAllRecommendations(),
-            icon: const Icon(Icons.copy),
-            label: const Text('Copy All Recommendations'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[700],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.grey[700]!,
+                  Colors.grey[800]!,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey[700]!.withOpacity(0.3),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              onPressed: () => _copyAllRecommendations(),
+              icon: const Icon(Icons.copy_rounded, size: 18),
+              label: const Text(
+                'Copy All Recommendations',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ).copyWith(
+                overlayColor: MaterialStateProperty.all(
+                  Colors.white.withOpacity(0.1),
+                ),
               ),
             ),
           ),
@@ -446,12 +665,33 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: [
+                      color,
+                      color.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.3),
+                      spreadRadius: 0,
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                    BoxShadow(
+                      color: color.withOpacity(0.1),
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: Colors.white, size: 22),
               ),
               const SizedBox(width: 12),
               Text(
@@ -463,9 +703,18 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 ),
               ),
               const Spacer(),
-              IconButton(
-                onPressed: () => _copyText(content),
-                icon: Icon(Icons.copy, size: 20, color: Colors.grey[600]),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: IconButton(
+                  onPressed: () => _copyText(content),
+                  icon: Icon(Icons.copy_rounded, size: 18, color: Colors.grey[700]),
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                ),
               ),
             ],
           ),
@@ -499,7 +748,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     // Simulate AI processing
     await Future.delayed(const Duration(seconds: 3));
 
-    final topProducts = TopProductsService.userTopProducts;
+    final topProducts = TopProducts.TopProductsService.userTopProducts;
     final mainProduct = topProducts.first;
     
     if (mounted) {
@@ -514,13 +763,13 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     }
   }
 
-  String _generateCopywriting(TopProduct product) {
+  String _generateCopywriting(Product product) {
     return """🔥 ${product.name} VIRAL ALERT! 🔥
 
 ✨ Produk #1 terlaris yang udah dipercaya ${product.salesCount}+ customers!
 ⭐ Rating ${product.rating}/5.0 - Bukti kualitas terbaik!
 
-${product.description}
+Kualitas premium dengan harga terjangkau!
 
 💥 PROMO LIVE STREAMING HARI INI:
 🎁 Buy 1 Get 1 GRATIS untuk 50 pembeli pertama!
@@ -551,7 +800,7 @@ Jangan sampai menyesal! Stock terbatas karena demand tinggi!
 • Closing yang kuat di 15 menit terakhir""";
   }
 
-  String _generateBundleRecommendation(List<TopProduct> products) {
+  String _generateBundleRecommendation(List<Product> products) {
     return """📦 BUNDLE STRATEGY RECOMMENDATIONS:
 
 🎯 BUNDLE 1: "${products[0].name} + ${products[1].name}"

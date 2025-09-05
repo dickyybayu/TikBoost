@@ -32,6 +32,7 @@ class Product {
   final String? imageUrl;
   final double rating;
   final int reviewCount;
+  final int salesCount;
   final List<String> tags;
   
   const Product({
@@ -42,6 +43,7 @@ class Product {
     this.imageUrl,
     this.rating = 0.0,
     this.reviewCount = 0,
+    this.salesCount = 0,
     this.tags = const [],
   });
   
