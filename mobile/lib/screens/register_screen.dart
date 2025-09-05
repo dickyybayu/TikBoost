@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/subscription_service.dart';
 import '../widgets/tikboost_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -30,15 +31,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = false;
     });
     if (ok) {
+      // Reset subscription to default (FREE) for new user
+      SubscriptionService.resetToDefault();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful. Please login.')),
+          const SnackBar(
+            content: Text('Registration successful. Please login.'),
+          ),
         );
         Navigator.pop(context);
       }
     } else {
       setState(() {
-        _error = message ?? 'Registration failed. Try a different email/username.';
+        _error =
+            message ?? 'Registration failed. Try a different email/username.';
       });
     }
   }
@@ -52,10 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         title: Text(
           'Daftar',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -84,10 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Daftar untuk mulai menggunakan TikBoost',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                     SizedBox(height: 40),
                     Container(
@@ -110,14 +111,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              prefixIcon: Icon(Icons.email_outlined, color: Colors.blue[400]),
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: Colors.blue[400],
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue[400]!),
+                                borderSide: BorderSide(
+                                  color: Colors.blue[400]!,
+                                ),
                               ),
                             ),
                           ),
@@ -126,14 +134,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _usernameController,
                             decoration: InputDecoration(
                               labelText: 'Username',
-                              prefixIcon: Icon(Icons.person_outlined, color: Colors.blue[400]),
+                              prefixIcon: Icon(
+                                Icons.person_outlined,
+                                color: Colors.blue[400],
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue[400]!),
+                                borderSide: BorderSide(
+                                  color: Colors.blue[400]!,
+                                ),
                               ),
                             ),
                           ),
@@ -142,14 +157,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_outlined, color: Colors.blue[400]),
+                              prefixIcon: Icon(
+                                Icons.lock_outlined,
+                                color: Colors.blue[400],
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue[400]!),
+                                borderSide: BorderSide(
+                                  color: Colors.blue[400]!,
+                                ),
                               ),
                             ),
                             obscureText: true,
@@ -187,15 +209,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: _isLoading
-                                  ? CircularProgressIndicator(color: Colors.white)
-                                  : Text(
-                                      'Buat Akun',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                              child:
+                                  _isLoading
+                                      ? CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                      : Text(
+                                        'Buat Akun',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
                             ),
                           ),
                         ],
@@ -210,25 +235,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              final (ok, msg) = await ApiService().healthCheck();
-                              if (!mounted) return;
-                              final base = ApiService.resolvedBaseUrl();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base (${msg})'),
-                                ),
-                              );
-                            },
+                      onPressed:
+                          _isLoading
+                              ? null
+                              : () async {
+                                final (ok, msg) =
+                                    await ApiService().healthCheck();
+                                if (!mounted) return;
+                                final base = ApiService.resolvedBaseUrl();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base (${msg})',
+                                    ),
+                                  ),
+                                );
+                              },
                       child: Text(
                         'Test Connection',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ),
                     TextButton(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/user_service.dart';
+import '../services/subscription_service.dart';
 import '../widgets/tikboost_logo.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,30 +23,45 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
     final api = ApiService();
-    final token = await api.login(_emailController.text.trim(), _passwordController.text);
-    
+    final token = await api.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+
     if (token != null) {
       // Get user profile and save to UserService
       final userProfile = await api.getUserProfile(token);
       if (userProfile != null) {
+        final userId =
+            userProfile['id']?.toString() ??
+            'user_${DateTime.now().millisecondsSinceEpoch}';
+        final isPremium = userProfile['is_premium'] == true;
+
         UserService.setUserData(
           username: userProfile['username'] ?? userProfile['email'] ?? 'User',
           email: userProfile['email'] ?? _emailController.text.trim(),
           token: token,
         );
+
+        // Initialize subscription based on backend data
+        SubscriptionService.initializeForUser(userId, isPremium: isPremium);
       } else {
         // Fallback if profile fetch fails
+        final userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
         UserService.setUserData(
           username: _emailController.text.trim().split('@').first,
           email: _emailController.text.trim(),
           token: token,
         );
+
+        // Default to free subscription
+        SubscriptionService.initializeForUser(userId, isPremium: false);
       }
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       // Navigate to dashboard
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/dashboard');
@@ -67,10 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.transparent,
         title: Text(
           'Masuk',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -99,10 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Masuk untuk menggunakan TikBoost',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                     SizedBox(height: 40),
                     Container(
@@ -125,14 +135,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              prefixIcon: Icon(Icons.email_outlined, color: Colors.blue[400]),
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: Colors.blue[400],
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue[400]!),
+                                borderSide: BorderSide(
+                                  color: Colors.blue[400]!,
+                                ),
                               ),
                             ),
                           ),
@@ -141,14 +158,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_outlined, color: Colors.blue[400]),
+                              prefixIcon: Icon(
+                                Icons.lock_outlined,
+                                color: Colors.blue[400],
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.blue[400]!),
+                                borderSide: BorderSide(
+                                  color: Colors.blue[400]!,
+                                ),
                               ),
                             ),
                             obscureText: true,
@@ -164,7 +188,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.error_outline, color: Colors.red[600], size: 20),
+                                  Icon(
+                                    Icons.error_outline,
+                                    color: Colors.red[600],
+                                    size: 20,
+                                  ),
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -190,15 +218,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: _isLoading 
-                                ? CircularProgressIndicator(color: Colors.white)
-                                : Text(
-                                    'Masuk',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                              child:
+                                  _isLoading
+                                      ? CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                      : Text(
+                                        'Masuk',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                             ),
                           ),
                         ],
@@ -210,11 +241,12 @@ class _LoginScreenState extends State<LoginScreen> {
               Padding(
                 padding: EdgeInsets.only(bottom: 16),
                 child: TextButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () {
-                          Navigator.pushNamed(context, '/register');
-                        },
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () {
+                            Navigator.pushNamed(context, '/register');
+                          },
                   child: RichText(
                     text: TextSpan(
                       text: "Belum punya akun? ",

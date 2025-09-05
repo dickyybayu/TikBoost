@@ -15,11 +15,12 @@ class AppTheme {
       primarySwatch: Colors.orange,
       scaffoldBackgroundColor: AppColors.background(isDark),
       fontFamily: GoogleFonts.poppins().fontFamily,
-      
+
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background(isDark),
         elevation: 0,
-        systemOverlayStyle: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        systemOverlayStyle:
+            isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         titleTextStyle: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
           fontSize: 20,
@@ -27,7 +28,7 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: AppColors.primaryText(isDark)),
       ),
-      
+
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
         headlineLarge: GoogleFonts.poppins(
           color: AppColors.primaryText(isDark),
@@ -72,7 +73,7 @@ class AppTheme {
           fontSize: 12,
         ),
       ),
-      
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,
@@ -82,21 +83,16 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
-      
+
       cardTheme: CardThemeData(
         color: AppColors.cardBackground(isDark),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      
+
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.cardBackground(isDark),
         selectedItemColor: AppColors.accent,

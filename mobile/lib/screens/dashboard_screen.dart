@@ -13,10 +13,7 @@ import 'products_screen.dart';
 class DashboardScreen extends StatefulWidget {
   final VoidCallback? onSettingsPressed;
 
-  const DashboardScreen({
-    super.key,
-    this.onSettingsPressed,
-  });
+  const DashboardScreen({super.key, this.onSettingsPressed});
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -63,14 +60,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
     final newIsPremium = userSubscription?.isPremium ?? false;
     if (oldIsPremium != newIsPremium) {
-      print('🔄 Dashboard: Premium status changed from $oldIsPremium to $newIsPremium');
+      print(
+        '🔄 Dashboard: Premium status changed from $oldIsPremium to $newIsPremium',
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isPremium = SubscriptionService.isPremium;
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -83,34 +82,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(width: 12),
             Text(
               'TikBoost',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 20,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
             ),
           ],
         ),
         actions: [
-          if (!isPremium)
-            Container(
-              margin: EdgeInsets.only(right: 8),
-              child: IconButton(
-                icon: Icon(Icons.star_rounded, color: Colors.purple[400]),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PremiumUpgradeScreen(
-                        featureName: 'Dashboard Premium Features',
-                        onUpgradeSuccess: () {
-                          _loadUserSubscription();
-                        },
-                      ),
-                    ),
-                  ).then((_) => _loadUserSubscription());
-                },
-              ),
-            ),
           if (widget.onSettingsPressed != null)
             IconButton(
               icon: Icon(Icons.settings_outlined),
@@ -144,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildWelcomeSection() {
     String userName = UserService.currentUsername;
-    
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(24),
@@ -179,18 +155,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Boost TikTok Anda dengan AI',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
-              ),
-              Icon(
-                Icons.star,
-                color: Colors.purple[400],
-                size: 28,
               ),
             ],
           ),
@@ -234,20 +202,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.amber[50],
+              color: Colors.blue[50],
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.amber[200]!),
+              border: Border.all(color: Colors.blue[200]!),
             ),
             child: Row(
               children: [
-                Icon(Icons.star, color: Colors.amber[600], size: 20),
+                Icon(Icons.info_outline, color: Colors.blue[600], size: 20),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Upgrade ke Premium untuk melihat statistik TikTok, analisis mendalam, dan fitur live stream advanced!',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.amber[800],
+                      color: Colors.blue[800],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -259,44 +227,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
   Widget _buildSubscriptionStatus(bool isPremium) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isPremium ? Colors.amber[50] : Colors.grey[100],
-        border: Border.all(
-          color: isPremium ? Colors.amber : Colors.grey[300]!,
-        ),
+        color: isPremium ? Colors.blue[50] : Colors.grey[100],
+        border: Border.all(color: isPremium ? Colors.blue[300]! : Colors.grey[300]!),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          Icon(
-            isPremium ? Icons.star : Icons.account_circle,
-            color: isPremium ? Colors.amber : Colors.grey[600],
-            size: 30,
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isPremium ? Colors.blue[100] : Colors.grey[200],
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Icon(
+              isPremium ? Icons.verified : Icons.account_circle,
+              color: isPremium ? Colors.blue[600] : Colors.grey[600],
+              size: 30,
+            ),
           ),
           SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isPremium ? 'Premium Member ⭐' : 'Free Member',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isPremium ? Colors.amber[800] : Colors.grey[700],
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      isPremium ? 'Premium Member' : 'Free Member',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isPremium ? Colors.blue[800] : Colors.grey[700],
+                      ),
+                    ),
+                    if (isPremium) ...[
+                      SizedBox(width: 8),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[600],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'PRO',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
-                  isPremium 
-                    ? 'Akses semua fitur premium'
-                    : 'Upgrade untuk fitur lengkap',
+                  isPremium
+                      ? 'Akses semua fitur premium TikBoost'
+                      : 'Upgrade untuk fitur analisis & live stream',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isPremium ? Colors.amber[700] : Colors.grey[600],
+                    color: isPremium ? Colors.blue[700] : Colors.grey[600],
                   ),
                 ),
               ],
@@ -306,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.purple[400]!, Colors.pink[400]!],
+                  colors: [Colors.blue[400]!, Colors.blue[300]!],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -317,12 +313,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PremiumUpgradeScreen(
-                        featureName: 'Premium Features',
-                        onUpgradeSuccess: () {
-                          _loadUserSubscription();
-                        },
-                      ),
+                      builder:
+                          (context) => PremiumUpgradeScreen(
+                            featureName: 'Premium Features',
+                            onUpgradeSuccess: () {
+                              _loadUserSubscription();
+                            },
+                          ),
                     ),
                   ).then((_) => _loadUserSubscription());
                 },
@@ -389,7 +386,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           SizedBox(height: 20),
-          
+
           if (!isPremium) ...[
             Container(
               height: 120,
@@ -415,10 +412,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Upgrade untuk analisis live stream',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 14),
                     ),
                   ],
                 ),
@@ -431,20 +425,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PremiumUpgradeScreen(
-                        featureName: 'Live Stream Performance',
-                        onUpgradeSuccess: () {
-                          _loadUserSubscription();
-                        },
-                      ),
+                      builder:
+                          (context) => PremiumUpgradeScreen(
+                            featureName: 'Live Stream Performance',
+                            onUpgradeSuccess: () {
+                              _loadUserSubscription();
+                            },
+                          ),
                     ),
                   ).then((_) => _loadUserSubscription());
                 },
-                icon: Icon(Icons.star),
+                icon: Icon(Icons.lock_open),
                 label: Text('Unlock Premium'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.blue[600],
+                  foregroundColor: Colors.white,
                 ),
               ),
             ),
@@ -498,7 +493,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           SizedBox(height: 20),
-          
+
           if (!isPremium) ...[
             Container(
               height: 120,
@@ -524,10 +519,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Upgrade untuk melihat metrics detail',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 14),
                     ),
                   ],
                 ),
@@ -578,10 +570,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Fitur analytics premium aktif',
-                      style: TextStyle(
-                        color: Colors.green[500],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.green[500], fontSize: 14),
                     ),
                   ],
                 ),
@@ -595,7 +584,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildQuickActions() {
     final isPremium = SubscriptionService.isPremium;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -619,9 +608,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TopProductsInputScreen(
-                        onProductsAdded: () => setState(() {}),
-                      ),
+                      builder:
+                          (context) => TopProductsInputScreen(
+                            onProductsAdded: () => setState(() {}),
+                          ),
                     ),
                   );
                 },
@@ -632,7 +622,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: _buildActionCard(
                 title: 'Recommendations',
                 icon: Icons.auto_awesome,
-                colors: [Colors.purple[400]!, Colors.pink[400]!],
+                colors: [Colors.blue[400]!, Colors.blue[300]!],
                 onTap: () {
                   Navigator.push(
                     context,
@@ -652,29 +642,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: _buildActionCard(
                 title: 'Live Analysis',
                 icon: Icons.live_tv,
-                colors: isPremium 
-                  ? [Colors.red[400]!, Colors.pink[400]!]
-                  : [Colors.grey[300]!, Colors.grey[400]!],
-                onTap: isPremium ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LiveAnalysisScreen(),
-                    ),
-                  );
-                } : () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PremiumUpgradeScreen(
-                        featureName: 'Live Analysis',
-                        onUpgradeSuccess: () {
-                          _loadUserSubscription();
+                colors:
+                    isPremium
+                        ? [Colors.red[400]!, Colors.pink[400]!]
+                        : [Colors.grey[300]!, Colors.grey[400]!],
+                onTap:
+                    isPremium
+                        ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LiveAnalysisScreen(),
+                            ),
+                          );
+                        }
+                        : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => PremiumUpgradeScreen(
+                                    featureName: 'Live Analysis',
+                                    onUpgradeSuccess: () {
+                                      _loadUserSubscription();
+                                    },
+                                  ),
+                            ),
+                          ).then((_) => _loadUserSubscription());
                         },
-                      ),
-                    ),
-                  ).then((_) => _loadUserSubscription());
-                },
                 isLocked: !isPremium,
               ),
             ),
@@ -687,9 +682,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => ProductsScreen()),
                   );
                 },
               ),
@@ -733,11 +726,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 32,
-                  ),
+                  Icon(icon, color: Colors.white, size: 32),
                   SizedBox(height: 8),
                   Text(
                     title,
@@ -755,11 +744,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Positioned(
                 top: 8,
                 right: 8,
-                child: Icon(
-                  Icons.lock,
-                  color: Colors.white70,
-                  size: 16,
-                ),
+                child: Icon(Icons.lock, color: Colors.white70, size: 16),
               ),
           ],
         ),
@@ -769,43 +754,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _showAnalyticsFeature() {
     final isPremium = SubscriptionService.isPremium;
-    
+
     if (!isPremium) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('🔒 Fitur Premium'),
-          content: Text(
-            'Analytics adalah fitur premium. Upgrade ke Premium untuk melihat analisis mendalam tentang performa TikTok Anda.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PremiumUpgradeScreen(
-                      featureName: 'Analytics',
-                      onUpgradeSuccess: () {
-                        _loadUserSubscription();
-                      },
-                    ),
-                  ),
-                ).then((_) => _loadUserSubscription());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple[400],
-                foregroundColor: Colors.white,
+        builder:
+            (context) => AlertDialog(
+              title: Text('🔒 Fitur Premium'),
+              content: Text(
+                'Analytics adalah fitur premium. Upgrade ke Premium untuk melihat analisis mendalam tentang performa TikTok Anda.',
               ),
-              child: Text('Upgrade'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Batal'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => PremiumUpgradeScreen(
+                              featureName: 'Analytics',
+                              onUpgradeSuccess: () {
+                                _loadUserSubscription();
+                              },
+                            ),
+                      ),
+                    ).then((_) => _loadUserSubscription());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[400],
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Upgrade'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     } else {
       // Show premium analytics (placeholder)

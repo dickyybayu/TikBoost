@@ -14,6 +14,7 @@ class ApiService {
         return 'http://localhost:8000';
     }
   }
+
   static const String apiPrefix = '/api/v1';
   static String resolvedBaseUrl() => baseUrl;
 
@@ -25,7 +26,8 @@ class ApiService {
             Uri.parse('$baseUrl$apiPrefix/auth/login'),
             // Sending as form data automatically sets content-type to x-www-form-urlencoded
             body: {
-              'username': emailOrUsername, // backend treats this as email in authenticate()
+              'username':
+                  emailOrUsername, // backend treats this as email in authenticate()
               'password': password,
             },
           )
@@ -46,9 +48,7 @@ class ApiService {
       final response = await http
           .get(
             Uri.parse('$baseUrl$apiPrefix/auth/me'),
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
+            headers: {'Authorization': 'Bearer $token'},
           )
           .timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {

@@ -17,7 +17,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   Widget build(BuildContext context) {
     final userTopProducts = TopProductsService.userTopProducts;
     final hasTopProducts = TopProductsService.hasTopProducts;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
@@ -69,9 +69,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TopProductsInputScreen(
-                            onProductsAdded: () => setState(() {}),
-                          ),
+                          builder:
+                              (context) => TopProductsInputScreen(
+                                onProductsAdded: () => setState(() {}),
+                              ),
                         ),
                       );
                     },
@@ -80,7 +81,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               // Top Products List
               ...userTopProducts.asMap().entries.map((entry) {
                 final index = entry.key;
@@ -92,14 +93,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ],
                 );
               }),
-              
+
               const SizedBox(height: 32),
             ] else ...[
               // No Top Products - Show input card
               _buildNoTopProductsCard(),
               const SizedBox(height: 32),
             ],
-            
+
             // Product Bundles Section (Free Feature)
             if (hasTopProducts) ...[
               const Text(
@@ -111,7 +112,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Bundle Cards based on top products - Available for FREE
               _buildBundleCardFromTopProducts(
                 userTopProducts.take(2).toList(),
@@ -119,7 +120,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 'Save 15%',
               ),
               const SizedBox(height: 12),
-              
+
               _buildBundleCardFromTopProducts(
                 userTopProducts,
                 'Complete Collection',
@@ -143,11 +144,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.add_business,
-            size: 48,
-            color: Color(0xFF3B82F6),
-          ),
+          const Icon(Icons.add_business, size: 48, color: Color(0xFF3B82F6)),
           const SizedBox(height: 16),
           const Text(
             'Belum Ada Produk Terlaris',
@@ -160,11 +157,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           const SizedBox(height: 8),
           const Text(
             'Input 3 produk terlaris Anda untuk mendapatkan insight dan rekomendasi yang lebih personal',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.4),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -173,9 +166,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TopProductsInputScreen(
-                    onProductsAdded: () => setState(() {}),
-                  ),
+                  builder:
+                      (context) => TopProductsInputScreen(
+                        onProductsAdded: () => setState(() {}),
+                      ),
                 ),
               );
             },
@@ -185,10 +179,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const Text('Input Produk Terlaris'),
           ),
@@ -197,7 +188,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  Widget _buildTopProductCard(BuildContext context, TopProduct product, int rank) {
+  Widget _buildTopProductCard(
+    BuildContext context,
+    TopProduct product,
+    int rank,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -218,11 +213,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: rank == 1 
-                ? Colors.amber
-                : rank == 2 
-                  ? Colors.grey.shade400
-                  : Colors.orange.shade400,
+              color:
+                  rank == 1
+                      ? Colors.amber
+                      : rank == 2
+                      ? Colors.grey.shade400
+                      : Colors.orange.shade400,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
@@ -237,7 +233,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          
+
           // Product image placeholder
           Container(
             width: 60,
@@ -246,14 +242,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.inventory,
-              color: Colors.grey,
-              size: 24,
-            ),
+            child: const Icon(Icons.inventory, color: Colors.grey, size: 24),
           ),
           const SizedBox(width: 12),
-          
+
           // Product info
           Expanded(
             child: Column(
@@ -270,19 +262,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${product.salesCount} terjual • ${product.category}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
+                    const Icon(Icons.star, color: Colors.amber, size: 16),
                     const SizedBox(width: 4),
                     Text(
                       product.rating.toString(),
@@ -296,7 +281,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ],
             ),
           ),
-          
+
           // Action buttons
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -318,10 +303,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductDetailScreen(
-                          productName: product.name,
-                          soldCount: '${product.salesCount} terjual',
-                        ),
+                        builder:
+                            (context) => ProductDetailScreen(
+                              productName: product.name,
+                              soldCount: '${product.salesCount} terjual',
+                            ),
                       ),
                     );
                   },
@@ -338,7 +324,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  Widget _buildBundleCardFromTopProducts(List<TopProduct> products, String bundleName, String discount) {
+  Widget _buildBundleCardFromTopProducts(
+    List<TopProduct> products,
+    String bundleName,
+    String discount,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -386,10 +376,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           const SizedBox(height: 8),
           Text(
             'Bundling: ${products.map((p) => p.name).join(' + ')}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            ),
+            style: const TextStyle(fontSize: 14, color: Colors.black54),
           ),
           const SizedBox(height: 12),
           Align(
@@ -415,31 +402,34 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void _showDeleteProductDialog(TopProduct product) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Produk Terlaris'),
-        content: Text('Apakah Anda yakin ingin menghapus "${product.name}" dari daftar produk terlaris?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Hapus Produk Terlaris'),
+            content: Text(
+              'Apakah Anda yakin ingin menghapus "${product.name}" dari daftar produk terlaris?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  TopProductsService.removeProduct(product.id);
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.name} berhasil dihapus'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Hapus'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              TopProductsService.removeProduct(product.id);
-              setState(() {});
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${product.name} berhasil dihapus'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
     );
   }
 }

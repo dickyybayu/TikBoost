@@ -9,9 +9,11 @@ import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-
+import 'services/subscription_service.dart';
 
 void main() {
+  // Reset subscription to default on app start
+  SubscriptionService.resetToDefault();
   runApp(TikBoostApp());
 }
 
@@ -38,15 +40,15 @@ class _TikBoostAppState extends State<TikBoostApp> {
           darkTheme: AppTheme.darkTheme,
           themeMode: _themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
           routes: {
-            '/dashboard': (context) => MainScreen(themeNotifier: _themeNotifier),
+            '/dashboard':
+                (context) => MainScreen(themeNotifier: _themeNotifier),
             '/login': (context) => LoginScreen(),
             '/register': (context) => const RegisterScreen(),
           },
-          home: _isAuthenticated
-              ? MainScreen(themeNotifier: _themeNotifier)
-              : LoginScreen(
-                  key: const Key('login'),
-                ),
+          home:
+              _isAuthenticated
+                  ? MainScreen(themeNotifier: _themeNotifier)
+                  : LoginScreen(key: const Key('login')),
         );
       },
     );
@@ -56,10 +58,7 @@ class _TikBoostAppState extends State<TikBoostApp> {
 class MainScreen extends StatefulWidget {
   final ThemeNotifier themeNotifier;
 
-  const MainScreen({
-    super.key,
-    required this.themeNotifier,
-  });
+  const MainScreen({super.key, required this.themeNotifier});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -69,10 +68,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<BottomNavigationBarItem> _navigationItems = const [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home_rounded),
-      label: 'Home',
-    ),
+    BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
     BottomNavigationBarItem(
       icon: Icon(Icons.auto_awesome_rounded),
       label: 'Recommendations',
@@ -94,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = widget.themeNotifier.isDark;
-    
+
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: _buildBottomNavigationBar(isDark),
@@ -104,9 +100,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getCurrentScreen() {
     switch (_currentIndex) {
       case 0:
-        return DashboardScreen(
-          onSettingsPressed: () => _navigateToSettings(),
-        );
+        return DashboardScreen(onSettingsPressed: () => _navigateToSettings());
       case 1:
         return const RecommendationsScreen();
       case 2:
@@ -116,9 +110,7 @@ class _MainScreenState extends State<MainScreen> {
       case 4:
         return SettingsScreen(themeNotifier: widget.themeNotifier);
       default:
-        return DashboardScreen(
-          onSettingsPressed: () => _navigateToSettings(),
-        );
+        return DashboardScreen(onSettingsPressed: () => _navigateToSettings());
     }
   }
 
@@ -152,7 +144,8 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsScreen(themeNotifier: widget.themeNotifier),
+        builder:
+            (context) => SettingsScreen(themeNotifier: widget.themeNotifier),
       ),
     );
   }

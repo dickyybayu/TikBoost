@@ -12,6 +12,23 @@ class SubscriptionService {
   static bool get isPremium => _currentSubscription.isPremium;
   static bool get isFree => _currentSubscription.isFree;
 
+  // Initialize subscription for a new user (ALWAYS starts as free)
+  static void initializeForUser(String userId, {bool isPremium = false}) {
+    _currentSubscription = UserSubscription(
+      userId: userId,
+      tier:
+          isPremium
+              ? subscriptionTiers.firstWhere((tier) => tier.id == 'premium')
+              : subscriptionTiers.firstWhere((tier) => tier.id == 'free'),
+      expiryDate:
+          isPremium ? DateTime.now().add(const Duration(days: 30)) : null,
+      isActive: true,
+    );
+    print(
+      '🔄 User $userId subscription initialized: ${isPremium ? "PREMIUM" : "FREE"}',
+    );
+  }
+
   static void upgradeToPremium() {
     _currentSubscription = UserSubscription(
       userId: _currentSubscription.userId,
@@ -30,13 +47,24 @@ class SubscriptionService {
     );
   }
 
-  // Method untuk reset subscription ke default
+  // Method untuk reset subscription ke default (FREE)
   static void resetToDefault() {
     _currentSubscription = UserSubscription(
       userId: 'user_1',
       tier: subscriptionTiers.first, // Reset ke free tier
       isActive: true,
     );
+    print('🔄 Subscription reset to default (FREE)');
+  }
+
+  // Clear subscription data (for logout)
+  static void clearSubscription() {
+    _currentSubscription = UserSubscription(
+      userId: 'guest',
+      tier: subscriptionTiers.first, // Free tier
+      isActive: false,
+    );
+    print('🔄 Subscription cleared');
   }
 }
 
@@ -76,7 +104,8 @@ class TopProductsService {
       TopProduct(
         id: '1',
         name: 'Handmade Batik Scarf',
-        description: 'Authentic Indonesian batik scarf with traditional patterns',
+        description:
+            'Authentic Indonesian batik scarf with traditional patterns',
         imageUrl: 'assets/images/batik_scarf.jpg',
         salesCount: 150,
         rating: 4.8,
