@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../services/subscription_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../services/top_products_service.dart' as TopProducts;
+import '../services/api_service.dart';
 import '../models/product_models.dart';
-import 'premium_upgrade_screen.dart';
 import 'top_products_input_screen.dart';
 
 class RecommendationsScreen extends StatefulWidget {
@@ -16,15 +17,62 @@ class RecommendationsScreen extends StatefulWidget {
 class _RecommendationsScreenState extends State<RecommendationsScreen> {
   bool _isGenerating = false;
   RecommendationsResult? _recommendations;
+  static const String _storageKey = 'cached_recommendations';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCachedRecommendations();
+  }
+
+  // Load cached recommendations from SharedPreferences
+  Future<void> _loadCachedRecommendations() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? cachedData = prefs.getString(_storageKey);
+      
+      if (cachedData != null) {
+        final Map<String, dynamic> data = json.decode(cachedData);
+        setState(() {
+          _recommendations = RecommendationsResult(
+            copywriting: data['copywriting'] ?? '',
+            optimalTime: data['optimalTime'] ?? '',
+            bundleRecommendation: data['bundleRecommendation'] ?? '',
+          );
+        });
+        print('🔄 Loaded cached recommendations');
+      }
+    } catch (e) {
+      print('❌ Error loading cached recommendations: $e');
+    }
+  }
+
+  // Save recommendations to SharedPreferences
+  Future<void> _saveCachedRecommendations(RecommendationsResult recommendations) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final Map<String, dynamic> data = {
+        'copywriting': recommendations.copywriting,
+        'optimalTime': recommendations.optimalTime,
+        'bundleRecommendation': recommendations.bundleRecommendation,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+      
+      await prefs.setString(_storageKey, json.encode(data));
+      print('💾 Saved recommendations to cache');
+    } catch (e) {
+      print('❌ Error saving recommendations: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-        final hasTopProducts = TopProducts.TopProductsService.hasTopProducts;
-    final isPremium = SubscriptionService.isPremium;
+    final hasTopProducts = TopProducts.TopProductsService.hasTopProducts;
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -81,23 +129,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          if (!isPremium)
-            IconButton(
-              icon: const Icon(Icons.star, color: Colors.amber),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PremiumUpgradeScreen(
-                      featureName: 'Premium Analysis Features',
-                      onUpgradeSuccess: () => setState(() {}),
-                    ),
-                  ),
-                ).then((_) => setState(() {}));
-              },
-            ),
-        ],
       ),
       body: !hasTopProducts 
         ? _buildTopProductsRequired()
@@ -293,8 +324,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.star, color: Colors.amber[600], size: 24),
-              const SizedBox(width: 8),
               const Text(
                 '3 Produk Terlaris Anda',
                 style: TextStyle(
@@ -365,12 +394,24 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                             color: Colors.black87,
                           ),
                         ),
-                        Text(
-                          '${product.salesCount} terjual • ⭐ ${product.rating}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.blue[700],
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              'Rp ${product.price.toStringAsFixed(0)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[600],
+                              ),
+                            ),
+                            Text(
+                              ' • ${product.salesCount} terjual',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue[700],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -518,10 +559,15 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.auto_awesome_rounded, size: 20),
+                          Icon(
+                            _recommendations != null ? Icons.refresh : Icons.auto_awesome_rounded, 
+                            size: 20
+                          ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'Generate All Recommendations',
+                          Text(
+                            _recommendations != null 
+                              ? 'Generate Ulang Recommendations'
+                              : 'Generate All Recommendations',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -745,31 +791,78 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       _isGenerating = true;
     });
 
-    // Simulate AI processing
-    await Future.delayed(const Duration(seconds: 3));
+    try {
+      final topProducts = TopProducts.TopProductsService.userTopProducts;
+      
+      // Prepare products data for API
+      final productsData = topProducts.map((product) => {
+        'id': product.id,
+        'name': product.name,
+        'price': product.price,
+        'salesCount': product.salesCount,
+      }).toList();
 
-    final topProducts = TopProducts.TopProductsService.userTopProducts;
-    final mainProduct = topProducts.first;
-    
-    if (mounted) {
-      setState(() {
-        _isGenerating = false;
-        _recommendations = RecommendationsResult(
-          copywriting: _generateCopywriting(mainProduct),
-          optimalTime: _generateOptimalTime(),
-          bundleRecommendation: _generateBundleRecommendation(topProducts),
+      // Call AI API
+      final apiService = ApiService();
+      final result = await apiService.generateRecommendations(
+        products: productsData,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isGenerating = false;
+          
+          if (result != null) {
+            // Use AI response
+            _recommendations = RecommendationsResult(
+              copywriting: result['copywriting'] ?? _generateFallbackCopywriting(topProducts.first),
+              optimalTime: result['optimal_time'] ?? _generateOptimalTime(),
+              bundleRecommendation: result['bundle_recommendation'] ?? _generateBundleRecommendation(topProducts),
+            );
+          } else {
+            // Fallback to local generation if API fails
+            _recommendations = RecommendationsResult(
+              copywriting: _generateFallbackCopywriting(topProducts.first),
+              optimalTime: _generateOptimalTime(),
+              bundleRecommendation: _generateBundleRecommendation(topProducts),
+            );
+            
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Gagal terhubung ke AI server. Menggunakan template lokal.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+          
+          // Save to cache after generating
+          if (_recommendations != null) {
+            _saveCachedRecommendations(_recommendations!);
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isGenerating = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
-      });
+      }
     }
   }
 
-  String _generateCopywriting(Product product) {
+  String _generateFallbackCopywriting(Product product) {
     return """🔥 ${product.name} VIRAL ALERT! 🔥
 
 ✨ Produk #1 terlaris yang udah dipercaya ${product.salesCount}+ customers!
-⭐ Rating ${product.rating}/5.0 - Bukti kualitas terbaik!
-
-Kualitas premium dengan harga terjangkau!
+💎 Kualitas premium dengan harga Rp ${product.price.toStringAsFixed(0)}!
 
 💥 PROMO LIVE STREAMING HARI INI:
 🎁 Buy 1 Get 1 GRATIS untuk 50 pembeli pertama!

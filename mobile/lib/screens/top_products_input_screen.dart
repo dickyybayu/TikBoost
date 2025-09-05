@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/subscription_models.dart';
-import '../services/subscription_service.dart';
+import '../models/product_models.dart';
+import '../services/top_products_service.dart';
 
 class TopProductsInputScreen extends StatefulWidget {
   final VoidCallback? onProductsAdded;
@@ -21,7 +21,7 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     TextEditingController(),
   ];
   
-  final List<TextEditingController> _descriptionControllers = [
+  final List<TextEditingController> _priceControllers = [
     TextEditingController(),
     TextEditingController(),
     TextEditingController(),
@@ -33,25 +33,28 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     TextEditingController(),
   ];
 
-  final List<String> _selectedCategories = ['Fashion', 'Fashion', 'Fashion'];
-  
-  final List<String> _categories = [
-    'Fashion',
-    'Food & Beverage',
-    'Art & Culture',
-    'Electronics',
-    'Beauty & Health',
-    'Home & Living',
-    'Sports & Outdoor',
-    'Books & Education',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingProducts();
+  }
+
+  // Load existing products if available
+  void _loadExistingProducts() {
+    final existingProducts = TopProductsService.userTopProducts;
+    for (int i = 0; i < existingProducts.length && i < 3; i++) {
+      _nameControllers[i].text = existingProducts[i].name;
+      _priceControllers[i].text = existingProducts[i].price.toString();
+      _salesControllers[i].text = existingProducts[i].salesCount.toString();
+    }
+  }
 
   @override
   void dispose() {
     for (var controller in _nameControllers) {
       controller.dispose();
     }
-    for (var controller in _descriptionControllers) {
+    for (var controller in _priceControllers) {
       controller.dispose();
     }
     for (var controller in _salesControllers) {
@@ -65,8 +68,10 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
-        title: const Text(
-          'Input 3 Produk Terlaris',
+        title: Text(
+          TopProductsService.userTopProducts.isNotEmpty 
+            ? 'Edit 3 Produk Terlaris'
+            : 'Input 3 Produk Terlaris',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -113,36 +118,13 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Simpan Produk',
+                child: Text(
+                  TopProductsService.userTopProducts.isNotEmpty 
+                    ? 'Update Produk'
+                    : 'Simpan Produk',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Use Demo Data Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: _useDemoData,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF3B82F6),
-                  side: const BorderSide(color: Color(0xFF3B82F6)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Gunakan Data Demo',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -188,59 +170,12 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
           ),
           const SizedBox(height: 16),
           
-          // Product Description
+          // Product Price
           _buildTextField(
-            controller: _descriptionControllers[index],
-            label: 'Deskripsi Produk',
-            hint: 'Masukkan deskripsi singkat produk',
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-          
-          // Category Dropdown
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Kategori',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedCategories[index],
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                ),
-                items: _categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedCategories[index] = value;
-                    });
-                  }
-                },
-              ),
-            ],
+            controller: _priceControllers[index],
+            label: 'Harga Produk',
+            hint: 'Masukkan harga dalam Rupiah (contoh: 150000)',
+            keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 16),
           
@@ -304,11 +239,11 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     );
   }
 
-  void _saveProducts() {
+  void _saveProducts() async {
     // Validate input
     for (int i = 0; i < 3; i++) {
       if (_nameControllers[i].text.isEmpty ||
-          _descriptionControllers[i].text.isEmpty ||
+          _priceControllers[i].text.isEmpty ||
           _salesControllers[i].text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -321,48 +256,34 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     }
 
     // Create products from input
-    final products = <TopProduct>[];
+    final products = <Product>[];
     for (int i = 0; i < 3; i++) {
       products.add(
-        TopProduct(
+        Product(
           id: 'user_product_${i + 1}',
           name: _nameControllers[i].text,
-          description: _descriptionControllers[i].text,
-          imageUrl: 'assets/images/placeholder_product.jpg',
+          price: double.tryParse(_priceControllers[i].text) ?? 0.0,
           salesCount: int.tryParse(_salesControllers[i].text) ?? 0,
-          rating: 4.5, // Default rating
-          category: _selectedCategories[i],
         ),
       );
     }
 
     // Save to service
-    TopProductsService.setTopProducts(products);
+    await TopProductsService.setProducts(products);
 
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Produk berhasil disimpan!'),
+      SnackBar(
+        content: Text(
+          TopProductsService.userTopProducts.isNotEmpty 
+            ? 'Produk berhasil diupdate!'
+            : 'Produk berhasil disimpan!'
+        ),
         backgroundColor: Colors.green,
       ),
     );
 
     // Navigate back
-    Navigator.pop(context);
-    widget.onProductsAdded?.call();
-  }
-
-  void _useDemoData() {
-    final demoProducts = TopProductsService.getDummyTopProducts();
-    TopProductsService.setTopProducts(demoProducts);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Data demo berhasil dimuat!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
     Navigator.pop(context);
     widget.onProductsAdded?.call();
   }

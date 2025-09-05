@@ -1,25 +1,8 @@
 import 'package:flutter/material.dart';
-import '../services/subscription_service.dart';
-
-class LiveSession {
-  final String id;
-  final String copywriting;
-  final String host;
-  final String time;
-  final String bundle;
-  final bool isAISuggestion;
-  final DateTime? scheduledDate;
-
-  LiveSession({
-    required this.id,
-    required this.copywriting,
-    required this.host,
-    required this.time,
-    required this.bundle,
-    this.isAISuggestion = false,
-    this.scheduledDate,
-  });
-}
+import '../services/top_products_service.dart';
+import '../services/sessions_service.dart';
+import '../services/api_service.dart';
+import '../models/planner_models.dart';
 
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
@@ -32,11 +15,35 @@ class _PlannerScreenState extends State<PlannerScreen> {
   List<LiveSession> _userSessions = [];
   List<LiveSession> _aiSuggestions = [];
   DateTime _selectedDate = DateTime.now();
+  late SessionsService _sessionsService;
 
   @override
   void initState() {
     super.initState();
+    _sessionsService = SessionsService(apiService: ApiService());
+    _loadSessions();
     _generateAISuggestions();
+  }
+
+  /// Load sessions from backend/local storage
+  Future<void> _loadSessions() async {
+    try {
+      final sessions = await _sessionsService.loadSessions();
+      setState(() {
+        _userSessions = sessions;
+      });
+    } catch (e) {
+      print('[PlannerScreen] Error loading sessions: $e');
+    }
+  }
+
+  /// Save sessions to backend/local storage
+  Future<void> _saveSessions() async {
+    try {
+      await _sessionsService.saveSessions(_userSessions);
+    } catch (e) {
+      print('[PlannerScreen] Error saving sessions: $e');
+    }
   }
 
   void _generateAISuggestions() {
@@ -71,11 +78,23 @@ class _PlannerScreenState extends State<PlannerScreen> {
     }
   }
 
+  // Get sessions for selected date only
+  List<LiveSession> get _sessionsForSelectedDate {
+    return _userSessions.where((session) {
+      if (session.scheduledDate == null) return false;
+      final sessionDate = session.scheduledDate!;
+      return sessionDate.year == _selectedDate.year &&
+             sessionDate.month == _selectedDate.month &&
+             sessionDate.day == _selectedDate.day;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Planner',
           style: TextStyle(
@@ -87,15 +106,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_rounded,
-              color: Colors.black87,
-            ),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -181,8 +191,8 @@ class _PlannerScreenState extends State<PlannerScreen> {
               ),
               const SizedBox(height: 16),
 
-              // User Session Cards
-              ..._userSessions.map(
+              // User Session Cards for selected date
+              ..._sessionsForSelectedDate.map(
                 (session) => Column(
                   children: [
                     _buildUserSessionCard(session),
@@ -190,6 +200,33 @@ class _PlannerScreenState extends State<PlannerScreen> {
                   ],
                 ),
               ),
+
+              // Show message if no sessions for selected date
+              if (_sessionsForSelectedDate.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Tidak ada session untuk ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}. Tap "+" untuk menambah session baru.',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
               const SizedBox(height: 32),
             ],
@@ -480,12 +517,15 @@ class _PlannerScreenState extends State<PlannerScreen> {
                   ),
                 ),
               ),
-              IconButton(
-                onPressed: () => _adoptAISuggestion(session),
-                icon: const Icon(
-                  Icons.add_circle_outline,
-                  color: Color(0xFF3B82F6),
-                  size: 20,
+              Tooltip(
+                message: 'Schedule this suggestion',
+                child: IconButton(
+                  onPressed: () => _adoptAISuggestion(session),
+                  icon: const Icon(
+                    Icons.schedule,
+                    color: Color(0xFF3B82F6),
+                    size: 20,
+                  ),
                 ),
               ),
             ],
@@ -500,11 +540,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            session.host,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-          const SizedBox(height: 4),
           Text(
             session.time,
             style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -639,6 +674,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
       _userSessions.add(newSession);
     });
 
+    // Save to backend/local storage
+    _saveSessions();
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Session added successfully!'),
@@ -647,23 +685,60 @@ class _PlannerScreenState extends State<PlannerScreen> {
     );
   }
 
-  void _adoptAISuggestion(LiveSession suggestion) {
+  void _adoptAISuggestion(LiveSession suggestion) async {
+    // Show date picker for user to choose when to schedule
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF3B82F6),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (selectedDate == null) return; // User cancelled
+
+    // Use original time from AI suggestion
+    final DateTime scheduledDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      19, // Default time 19:00 (7 PM) - good time for live streaming
+      0,
+    );
+
     final adoptedSession = LiveSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       copywriting: suggestion.copywriting,
       host: suggestion.host,
-      time: suggestion.time,
+      time: suggestion.time, // Use original time from suggestion
       bundle: suggestion.bundle,
-      scheduledDate: _selectedDate,
+      scheduledDate: scheduledDateTime,
     );
 
     setState(() {
       _userSessions.add(adoptedSession);
     });
 
+    // Save to backend/local storage
+    _saveSessions();
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('AI suggestion adopted successfully!'),
+      SnackBar(
+        content: Text(
+          'AI suggestion scheduled for ${selectedDate.day}/${selectedDate.month}/${selectedDate.year} at ${suggestion.time}!',
+        ),
         backgroundColor: Colors.green,
       ),
     );
@@ -690,6 +765,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
                       (session) => session.id == sessionId,
                     );
                   });
+                  
+                  // Save to backend/local storage
+                  _saveSessions();
+                  
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

@@ -5,15 +5,19 @@ import 'utils/theme_notifier.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/recommendations_screen.dart';
 import 'screens/planner_screen.dart';
-import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'services/subscription_service.dart';
+import 'services/top_products_service.dart';
 
-void main() {
-  // Reset subscription to default on app start
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services
   SubscriptionService.resetToDefault();
+  await TopProductsService.loadProducts();
+  
   runApp(TikBoostApp());
 }
 
@@ -78,10 +82,6 @@ class _MainScreenState extends State<MainScreen> {
       label: 'Planner',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.inventory_rounded),
-      label: 'Products',
-    ),
-    BottomNavigationBarItem(
       icon: Icon(Icons.settings_rounded),
       label: 'Settings',
     ),
@@ -106,8 +106,6 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return const PlannerScreen();
       case 3:
-        return const ProductsScreen();
-      case 4:
         return SettingsScreen(themeNotifier: widget.themeNotifier);
       default:
         return DashboardScreen(onSettingsPressed: () => _navigateToSettings());

@@ -553,27 +553,27 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           const SizedBox(height: 16),
           
           _buildFeatureItem(
-            '👥 HOST Recommendations',
+            'HOST Recommendations',
             'AI akan menganalisis gaya host terbaik berdasarkan audience engagement',
             Colors.orange[600]!,
           ),
           _buildFeatureItem(
-            '📊 Real-time Metrics',
+            'Real-time Metrics',
             'Monitor viewers, engagement rate, dan conversion secara real-time',
             Colors.blue[600]!,
           ),
           _buildFeatureItem(
-            '🎯 Audience Behavior',
+            'Audience Behavior',
             'Insights mendalam tentang perilaku dan preferensi audience',
             Colors.green[600]!,
           ),
           _buildFeatureItem(
-            '💡 AI Suggestions',
+            'AI Suggestions',
             'Rekomendasi strategis untuk meningkatkan performa live stream',
             Colors.purple[600]!,
           ),
           _buildFeatureItem(
-            '📈 Competitive Analysis',
+            'Competitive Analysis',
             'Bandingkan performa dengan kompetitor di niche yang sama',
             Colors.red[600]!,
           ),

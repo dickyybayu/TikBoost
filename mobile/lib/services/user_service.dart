@@ -25,6 +25,11 @@ class UserService {
   // Get access token
   static String? get accessToken => _accessToken;
 
+  // Get current username as async method (for consistency with service patterns)
+  static Future<String?> getUsername() async {
+    return _currentUsername;
+  }
+
   // Check if user is logged in
   static bool get isLoggedIn =>
       _accessToken != null && _currentUsername != null;

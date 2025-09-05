@@ -231,42 +231,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Padding(
                 padding: EdgeInsets.only(bottom: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : () async {
-                                final (ok, msg) =
-                                    await ApiService().healthCheck();
-                                if (!mounted) return;
-                                final base = ApiService.resolvedBaseUrl();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base (${msg})',
-                                    ),
-                                  ),
-                                );
-                              },
-                      child: Text(
-                        'Test Connection',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                child: Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Sudah punya akun? Masuk',
+                      style: TextStyle(
+                        color: Colors.blue[600],
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Sudah punya akun? Masuk',
-                        style: TextStyle(
-                          color: Colors.blue[600],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],

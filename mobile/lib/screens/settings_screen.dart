@@ -11,14 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Notification settings
-  bool liveStreamAlerts = true;
-  bool salesNotifications = true;
-  bool performanceAlerts = false;
-  bool aiContentReady = true;
-  bool trendingUpdates = false;
-  bool systemUpdates = true;
-
   // Controllers for edit profile
   late TextEditingController _nameController;
   late TextEditingController _emailController;
@@ -55,10 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -139,17 +128,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.grey,
                   ),
                   onTap: () => _showEditProfileDialog(),
-                  showDivider: true,
-                ),
-                _buildSettingItem(
-                  icon: Icons.notifications_rounded,
-                  title: 'Notifications',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () => _showNotificationSettings(),
                   showDivider: true,
                 ),
                 _buildSettingItem(
@@ -268,104 +246,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  void _showNotificationSettings() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Notification Settings'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildNotificationToggle(
-                    'Live Stream Alerts',
-                    'Notify when live sessions start/end',
-                    liveStreamAlerts,
-                    (value) => setState(() => liveStreamAlerts = value),
-                  ),
-                  _buildNotificationToggle(
-                    'Sales Notifications',
-                    'Alert when products are sold',
-                    salesNotifications,
-                    (value) => setState(() => salesNotifications = value),
-                  ),
-                  _buildNotificationToggle(
-                    'Performance Alerts',
-                    'Notify when metrics reach targets',
-                    performanceAlerts,
-                    (value) => setState(() => performanceAlerts = value),
-                  ),
-                  _buildNotificationToggle(
-                    'AI Content Ready',
-                    'Alert when AI finishes generating content',
-                    aiContentReady,
-                    (value) => setState(() => aiContentReady = value),
-                  ),
-                  _buildNotificationToggle(
-                    'Trending Updates',
-                    'New trending topics and data',
-                    trendingUpdates,
-                    (value) => setState(() => trendingUpdates = value),
-                  ),
-                  _buildNotificationToggle(
-                    'System Updates',
-                    'App updates and new features',
-                    systemUpdates,
-                    (value) => setState(() => systemUpdates = value),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Done'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Widget _buildNotificationToggle(
-    String title,
-    String subtitle,
-    bool value,
-    Function(bool) onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeColor: Colors.blue,
-          ),
-        ],
       ),
     );
   }

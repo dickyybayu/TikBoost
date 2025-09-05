@@ -1,10 +1,14 @@
 from fastapi import APIRouter
-from app.api.api_v1.endpoints import auth, tiktok_live, mock_tiktok, hf_inference
+from app.api.api_v1.endpoints import auth, tiktok_live, mock_tiktok, hf_inference, user_products, user_sessions
 
 api_router = APIRouter()
 
 # Authentication routes
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+
+# User data routes
+api_router.include_router(user_products.router, tags=["user-data"])
+api_router.include_router(user_sessions.router, tags=["user-sessions"])
 
 # TikTok Live AI routes (real model - local download)
 api_router.include_router(tiktok_live.router, prefix="/tiktok", tags=["tiktok-live-ai"])

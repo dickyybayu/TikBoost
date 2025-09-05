@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../services/subscription_service.dart';
 import '../services/user_service.dart';
+import '../services/top_products_service.dart';
 import '../models/subscription_models.dart';
 import '../widgets/tikboost_logo.dart';
 import 'premium_upgrade_screen.dart';
 import 'top_products_input_screen.dart';
 import 'recommendations_screen.dart';
 import 'live_analysis_screen.dart';
-import 'products_screen.dart';
+import 'planner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final VoidCallback? onSettingsPressed;
@@ -27,10 +28,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadUserSubscription();
+    _loadUserProducts();
     // Periodic refresh every 2 seconds to catch premium changes
     _refreshTimer = Timer.periodic(Duration(seconds: 2), (timer) {
       _loadUserSubscription();
     });
+  }
+
+  Future<void> _loadUserProducts() async {
+    try {
+      await TopProductsService.loadProducts();
+      if (mounted) {
+        setState(() {}); // Refresh UI after loading products
+      }
+    } catch (e) {
+      print('Error loading products in dashboard: $e');
+    }
   }
 
   @override
@@ -73,6 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black87,
@@ -120,6 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildWelcomeSection() {
     String userName = UserService.currentUsername;
+    String displayName = _formatDisplayName(userName);
 
     return Container(
       width: double.infinity,
@@ -145,7 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Selamat Datang, $userName! 👋',
+                      'Selamat Datang, $displayName! 👋',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -582,8 +597,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String _formatDisplayName(String userName) {
+    if (userName.isEmpty) return 'User';
+    
+    // Split by dots, underscores, or other separators
+    List<String> parts = userName.split(RegExp(r'[._@-]'));
+    
+    if (parts.isNotEmpty) {
+      String firstName = parts[0];
+      // Capitalize first letter
+      return firstName.isNotEmpty 
+          ? firstName[0].toUpperCase() + firstName.substring(1).toLowerCase()
+          : 'User';
+    }
+    
+    return userName;
+  }
+
   Widget _buildQuickActions() {
     final isPremium = SubscriptionService.isPremium;
+    final hasProducts = TopProductsService.userTopProducts.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -601,8 +634,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               child: _buildActionCard(
-                title: 'Input Produk',
-                icon: Icons.shopping_cart,
+                title: hasProducts ? 'Edit Produk' : 'Input Produk',
+                icon: hasProducts ? Icons.edit : Icons.shopping_cart,
                 colors: [Colors.blue[400]!, Colors.blue[600]!],
                 onTap: () {
                   Navigator.push(
@@ -676,13 +709,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(width: 16),
             Expanded(
               child: _buildActionCard(
-                title: 'Products',
-                icon: Icons.inventory,
-                colors: [Colors.green[400]!, Colors.teal[400]!],
+                title: 'Planner',
+                icon: Icons.calendar_today,
+                colors: [Colors.purple[400]!, Colors.deepPurple[400]!],
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProductsScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => PlannerScreen(),
+                    ),
                   );
                 },
               ),
@@ -703,6 +738,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: double.infinity,
         height: 100,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -723,21 +759,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Padding(
               padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: Colors.white, size: 32),
-                  SizedBox(height: 8),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: Colors.white, size: 32),
+                    SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        height: 1.2,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             if (isLocked)

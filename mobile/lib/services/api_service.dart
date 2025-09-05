@@ -18,6 +18,43 @@ class ApiService {
   static const String apiPrefix = '/api/v1';
   static String resolvedBaseUrl() => baseUrl;
 
+  // Save user products to backend
+  Future<bool> saveUserProducts(List<Map<String, dynamic>> products, String username) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl$apiPrefix/user/products'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'products': products,
+        }),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error saving products: $e');
+      return false;
+    }
+  }
+
+  // Load user products from backend
+  Future<List<Map<String, dynamic>>?> loadUserProducts(String username) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl$apiPrefix/user/products/$username'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data['products'] ?? []);
+      }
+      return [];
+    } catch (e) {
+      print('Error loading products: $e');
+      return null;
+    }
+  }
+
   // FastAPI uses OAuth2PasswordRequestForm on /auth/login (form-encoded)
   Future<String?> login(String emailOrUsername, String password) async {
     try {
@@ -169,5 +206,57 @@ class ApiService {
     } catch (e) {
       return (false, e.toString());
     }
+  }
+
+  // AI Recommendations method
+  Future<Map<String, dynamic>?> generateRecommendations({
+    required List<Map<String, dynamic>> products,
+  }) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl$apiPrefix/ai/recommendations'),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'products': products,
+            }),
+          )
+          .timeout(const Duration(seconds: 30)); // Longer timeout for AI processing
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        debugPrint('AI Recommendations API error: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('AI Recommendations API exception: $e');
+      return null;
+    }
+  }
+
+  // Generic HTTP methods for sessions service
+  Future<http.Response> get(String endpoint) async {
+    return await http.get(
+      Uri.parse('$baseUrl$apiPrefix$endpoint'),
+      headers: {'Content-Type': 'application/json'},
+    );
+  }
+
+  Future<http.Response> post(String endpoint, Map<String, dynamic> data) async {
+    return await http.post(
+      Uri.parse('$baseUrl$apiPrefix$endpoint'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+  }
+
+  Future<http.Response> delete(String endpoint) async {
+    return await http.delete(
+      Uri.parse('$baseUrl$apiPrefix$endpoint'),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 }
