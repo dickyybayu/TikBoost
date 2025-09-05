@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/tikboost_logo.dart';
@@ -31,7 +33,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = false;
     });
     if (ok) {
-      // Reset subscription to default (FREE) for new user
       SubscriptionService.resetToDefault();
 
       if (mounted) {
@@ -53,192 +54,155 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          'Daftar',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF3E5EF0), Color(0xFFF05A5A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // TikBoost Logo
-                    Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      child: TikBoostLogo(size: 80),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TikBoostLogo(size: 90),
+                  const SizedBox(height: 24),
+                  Text(
+                    "Buat Akun Baru ✨",
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Buat Akun Baru',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Daftar untuk mulai menggunakan TikBoost",
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.white70,
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Daftar untuk mulai menggunakan TikBoost',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                    SizedBox(height: 40),
-                    Container(
-                      padding: EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Glass card
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: Icon(
-                                Icons.email_outlined,
-                                color: Colors.blue[400],
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.blue[400]!,
-                                ),
+                        ),
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              style: GoogleFonts.poppins(color: Colors.white),
+                              decoration: _inputDecoration(
+                                label: "Email",
+                                icon: Icons.email_outlined,
                               ),
                             ),
-                          ),
-                          SizedBox(height: 16),
-                          TextField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(
-                                Icons.person_outlined,
-                                color: Colors.blue[400],
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.blue[400]!,
-                                ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _usernameController,
+                              style: GoogleFonts.poppins(color: Colors.white),
+                              decoration: _inputDecoration(
+                                label: "Username",
+                                icon: Icons.person_outline,
                               ),
                             ),
-                          ),
-                          SizedBox(height: 16),
-                          TextField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(
-                                Icons.lock_outlined,
-                                color: Colors.blue[400],
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.blue[400]!,
-                                ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              style: GoogleFonts.poppins(color: Colors.white),
+                              decoration: _inputDecoration(
+                                label: "Password",
+                                icon: Icons.lock_outline,
                               ),
                             ),
-                            obscureText: true,
-                          ),
-                          SizedBox(height: 24),
-                          if (_error != null) ...[
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.red[50],
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.red[200]!),
-                              ),
-                              child: Text(
-                                _error!,
-                                style: TextStyle(
-                                  color: Colors.red[700],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                          ],
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _register,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF3B82F6),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
+                            const SizedBox(height: 20),
+
+                            if (_error != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                elevation: 0,
-                              ),
-                              child:
-                                  _isLoading
-                                      ? CircularProgressIndicator(
-                                        color: Colors.white,
-                                      )
-                                      : Text(
-                                        'Buat Akun',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.error_outline,
+                                        color: Colors.white, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _error!,
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black87,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 6,
+                                ),
+                                child: _isLoading
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.black87,
+                                      )
+                                    : Text(
+                                        "Buat Akun",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : () async {
+                  ),
+
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
                                 final (ok, msg) =
                                     await ApiService().healthCheck();
                                 if (!mounted) return;
@@ -246,31 +210,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base (${msg})',
+                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base ($msg)',
                                     ),
                                   ),
                                 );
                               },
-                      child: Text(
-                        'Test Connection',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Sudah punya akun? Masuk',
-                        style: TextStyle(
-                          color: Colors.blue[600],
-                          fontWeight: FontWeight.w600,
+                        child: Text(
+                          'Test Connection',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Sudah punya akun? Masuk',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({required String label, required IconData icon}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: Colors.white70),
+      prefixIcon: Icon(icon, color: Colors.white70),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Colors.white.withOpacity(0.4),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: Colors.white,
+          width: 1.5,
         ),
       ),
     );
