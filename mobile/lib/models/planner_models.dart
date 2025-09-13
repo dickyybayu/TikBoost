@@ -39,9 +39,10 @@ class LiveSession {
       time: json['time'] ?? '',
       bundle: json['bundle'] ?? '',
       isAISuggestion: json['isAISuggestion'] ?? false,
-      scheduledDate: json['scheduledDate'] != null 
-          ? DateTime.parse(json['scheduledDate'])
-          : null,
+      scheduledDate:
+          json['scheduledDate'] != null
+              ? DateTime.parse(json['scheduledDate'])
+              : null,
     );
   }
 

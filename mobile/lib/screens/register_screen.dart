@@ -197,32 +197,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 24),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                final (ok, msg) =
-                                    await ApiService().healthCheck();
-                                if (!mounted) return;
-                                final base = ApiService.resolvedBaseUrl();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Server ${ok ? 'reachable' : 'unreachable'} at $base ($msg)',
-                                    ),
-                                  ),
-                                );
-                              },
-                        child: Text(
-                          'Test Connection',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(

@@ -25,7 +25,7 @@ class SubscriptionService {
       isActive: true,
     );
     print(
-      '🔄 User $userId subscription initialized: ${isPremium ? "PREMIUM" : "FREE"}',
+      'User $userId subscription initialized: ${isPremium ? "PREMIUM" : "FREE"}',
     );
   }
 
@@ -36,7 +36,7 @@ class SubscriptionService {
       expiryDate: DateTime.now().add(const Duration(days: 30)), // 30 days trial
       isActive: true,
     );
-    print('🎉 PREMIUM UPGRADED! isPremium: ${_currentSubscription.isPremium}');
+    print('PREMIUM UPGRADED! isPremium: ${_currentSubscription.isPremium}');
   }
 
   static void downgradeToFree() {
@@ -54,7 +54,7 @@ class SubscriptionService {
       tier: subscriptionTiers.first, // Reset ke free tier
       isActive: true,
     );
-    print('🔄 Subscription reset to default (FREE)');
+    print('Subscription reset to default (FREE)');
   }
 
   // Clear subscription data (for logout)
@@ -64,6 +64,6 @@ class SubscriptionService {
       tier: subscriptionTiers.first, // Free tier
       isActive: false,
     );
-    print('🔄 Subscription cleared');
+    print('Subscription cleared');
   }
 }

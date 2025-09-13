@@ -74,7 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final newIsPremium = userSubscription?.isPremium ?? false;
     if (oldIsPremium != newIsPremium) {
       print(
-        '🔄 Dashboard: Premium status changed from $oldIsPremium to $newIsPremium',
+        'Dashboard: Premium status changed from $oldIsPremium to $newIsPremium',
       );
     }
   }
@@ -249,7 +249,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isPremium ? Colors.blue[50] : Colors.grey[100],
-        border: Border.all(color: isPremium ? Colors.blue[300]! : Colors.grey[300]!),
+        border: Border.all(
+          color: isPremium ? Colors.blue[300]! : Colors.grey[300]!,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -284,7 +286,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (isPremium) ...[
                       SizedBox(width: 8),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.blue[600],
                           borderRadius: BorderRadius.circular(12),
@@ -599,18 +604,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _formatDisplayName(String userName) {
     if (userName.isEmpty) return 'User';
-    
+
     // Split by dots, underscores, or other separators
     List<String> parts = userName.split(RegExp(r'[._@-]'));
-    
+
     if (parts.isNotEmpty) {
       String firstName = parts[0];
       // Capitalize first letter
-      return firstName.isNotEmpty 
+      return firstName.isNotEmpty
           ? firstName[0].toUpperCase() + firstName.substring(1).toLowerCase()
           : 'User';
     }
-    
+
     return userName;
   }
 
@@ -715,9 +720,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => PlannerScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => PlannerScreen()),
                   );
                 },
               ),

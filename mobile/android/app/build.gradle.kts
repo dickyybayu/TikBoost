@@ -29,6 +29,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Force software rendering to avoid graphics crashes
+        manifestPlaceholders["enableSoftwareRendering"] = "true"
+        manifestPlaceholders["enableImpeller"] = "false"
     }
 
     buildTypes {

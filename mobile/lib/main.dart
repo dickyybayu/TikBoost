@@ -13,11 +13,11 @@ import 'services/top_products_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize services
   SubscriptionService.resetToDefault();
   await TopProductsService.loadProducts();
-  
+
   runApp(TikBoostApp());
 }
 

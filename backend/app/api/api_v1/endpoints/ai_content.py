@@ -859,3 +859,88 @@ def _analyze_content_improvements(static_sections: Dict, enhanced_sections: Dict
         improvements["overall_assessment"] = "Minimal enhancement - check Apify data availability"
     
     return improvements
+
+# ===============================================================================
+# 🧪 TESTING ENDPOINTS (NO AUTHENTICATION REQUIRED)
+# ===============================================================================
+
+@router.post("/test/save-recommendations")
+def save_recommendations_test(
+    *,
+    db: Session = Depends(get_db),
+    recommendations: dict,
+) -> Any:
+    """
+    Test endpoint to save AI recommendations without authentication
+    """
+    try:
+        from app.models.models import AIContent
+        
+        # Create new AI content entry
+        ai_content = AIContent(
+            content_type="recommendations",
+            title=f"AI Generated Recommendations - {datetime.now().isoformat()}",
+            content=str(recommendations),  # Convert dict to string
+            prompt_used="Live commerce recommendations for products",
+            user_id=1,  # Default test user ID
+        )
+        
+        db.add(ai_content)
+        db.commit()
+        db.refresh(ai_content)
+        
+        return {
+            "status": "success",
+            "message": "Recommendations saved successfully",
+            "id": ai_content.id,
+            "content_type": ai_content.content_type
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to save recommendations: {str(e)}"
+        )
+
+@router.get("/test/load-recommendations")
+def load_recommendations_test(
+    *,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Test endpoint to load AI recommendations without authentication
+    """
+    try:
+        from app.models.models import AIContent
+        
+        # Get latest recommendations
+        latest_content = db.query(AIContent).filter(
+            AIContent.content_type == "recommendations"
+        ).order_by(AIContent.created_at.desc()).first()
+        
+        if latest_content:
+            import json
+            try:
+                # Try to parse as JSON
+                content_data = json.loads(latest_content.content)
+            except:
+                # Fallback to eval if JSON parsing fails
+                content_data = eval(latest_content.content)
+            
+            return {
+                "status": "success",
+                "data": content_data,
+                "created_at": latest_content.created_at.isoformat(),
+                "id": latest_content.id
+            }
+        else:
+            return {
+                "status": "not_found",
+                "message": "No recommendations found"
+            }
+            
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to load recommendations: {str(e)}"
+        )

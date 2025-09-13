@@ -33,6 +33,8 @@ class User(Base):
     products = relationship("Product", back_populates="owner")
     notifications = relationship("Notification", back_populates="user")
     analytics = relationship("Analytics", back_populates="user")
+    ai_recommendations = relationship("AIRecommendation", back_populates="user")
+    user_products = relationship("UserProduct", back_populates="user")
 
 class LiveSession(Base):
     __tablename__ = "live_sessions"

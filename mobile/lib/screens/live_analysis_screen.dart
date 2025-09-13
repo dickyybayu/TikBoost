@@ -25,7 +25,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final isPremium = SubscriptionService.isPremium;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
@@ -54,35 +54,37 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PremiumUpgradeScreen(
-                    featureName: 'Live Analysis Premium Features',
-                    onUpgradeSuccess: () => setState(() {}),
-                  ),
+                  builder:
+                      (context) => PremiumUpgradeScreen(
+                        featureName: 'Live Analysis Premium Features',
+                        onUpgradeSuccess: () => setState(() {}),
+                      ),
                 ),
               ).then((_) => setState(() {}));
             },
           ),
         ],
       ),
-      body: !isPremium 
-        ? _buildPremiumRequired()
-        : SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeaderSection(),
-                const SizedBox(height: 24),
-                _buildAnalysisInput(),
-                const SizedBox(height: 24),
-                if (_analysisResult != null) ...[
-                  _buildAnalysisResult(),
-                  const SizedBox(height: 24),
-                ],
-                _buildFeaturesList(),
-              ],
-            ),
-          ),
+      body:
+          !isPremium
+              ? _buildPremiumRequired()
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeaderSection(),
+                    const SizedBox(height: 24),
+                    _buildAnalysisInput(),
+                    const SizedBox(height: 24),
+                    if (_analysisResult != null) ...[
+                      _buildAnalysisResult(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildFeaturesList(),
+                  ],
+                ),
+              ),
     );
   }
 
@@ -103,11 +105,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
-                Icons.analytics,
-                size: 64,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.analytics, size: 64, color: Colors.white),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -145,10 +143,11 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PremiumUpgradeScreen(
-                        featureName: 'Live Analysis',
-                        onUpgradeSuccess: () => setState(() {}),
-                      ),
+                      builder:
+                          (context) => PremiumUpgradeScreen(
+                            featureName: 'Live Analysis',
+                            onUpgradeSuccess: () => setState(() {}),
+                          ),
                     ),
                   ).then((_) => setState(() {}));
                 },
@@ -186,11 +185,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.verified,
-                color: Colors.white,
-                size: 24,
-              ),
+              const Icon(Icons.verified, color: Colors.white, size: 24),
               const SizedBox(width: 12),
               const Expanded(
                 child: Text(
@@ -217,11 +212,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
         const SizedBox(height: 8),
         const Text(
           'Analisis mendalam performa live streaming Anda dengan AI, termasuk rekomendasi HOST yang optimal untuk meningkatkan engagement.',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black54,
-            height: 1.4,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.black54, height: 1.4),
         ),
       ],
     );
@@ -258,11 +249,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.live_tv,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: const Icon(Icons.live_tv, color: Colors.white, size: 24),
               ),
               const SizedBox(width: 16),
               const Expanded(
@@ -279,10 +266,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                     ),
                     Text(
                       'Masukkan URL TikTok live atau profil untuk analisis',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -290,7 +274,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           TextField(
             controller: _tiktokUrlController,
             decoration: InputDecoration(
@@ -306,7 +290,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -320,22 +304,25 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: _isAnalyzing
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              child:
+                  _isAnalyzing
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                      : const Text(
+                        'Analyze with AI',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    )
-                  : const Text(
-                      'Analyze with AI',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
             ),
           ),
         ],
@@ -358,7 +345,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Host Recommendation (Premium Only)
         _buildResultCard(
           title: 'HOST RECOMMENDATION',
@@ -367,9 +354,9 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           content: _analysisResult!.hostRecommendation,
           isPremiumFeature: true,
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Performance Metrics
         _buildResultCard(
           title: 'PERFORMANCE METRICS',
@@ -377,9 +364,9 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           color: Colors.blue[600]!,
           content: _analysisResult!.performanceMetrics,
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Audience Insights
         _buildResultCard(
           title: 'AUDIENCE INSIGHTS',
@@ -387,9 +374,9 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           color: Colors.green[600]!,
           content: _analysisResult!.audienceInsights,
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // AI Recommendations
         _buildResultCard(
           title: 'AI RECOMMENDATIONS',
@@ -397,9 +384,9 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
           color: Colors.purple[600]!,
           content: _analysisResult!.aiRecommendations,
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Copy All Button
         SizedBox(
           width: double.infinity,
@@ -435,7 +422,10 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isPremiumFeature ? Colors.amber.withOpacity(0.3) : color.withOpacity(0.2)
+          color:
+              isPremiumFeature
+                  ? Colors.amber.withOpacity(0.3)
+                  : color.withOpacity(0.2),
         ),
         boxShadow: [
           BoxShadow(
@@ -454,15 +444,16 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isPremiumFeature 
-                    ? Colors.amber.withOpacity(0.1)
-                    : color.withOpacity(0.1),
+                  color:
+                      isPremiumFeature
+                          ? Colors.amber.withOpacity(0.1)
+                          : color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  icon, 
-                  color: isPremiumFeature ? Colors.amber[700] : color, 
-                  size: 20
+                  icon,
+                  color: isPremiumFeature ? Colors.amber[700] : color,
+                  size: 20,
                 ),
               ),
               const SizedBox(width: 12),
@@ -477,7 +468,10 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
               if (isPremiumFeature) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber[600],
                     borderRadius: BorderRadius.circular(12),
@@ -504,9 +498,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isPremiumFeature 
-                ? Colors.amber[50]
-                : Colors.grey[50],
+              color: isPremiumFeature ? Colors.amber[50] : Colors.grey[50],
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -551,7 +543,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           _buildFeatureItem(
             'HOST Recommendations',
             'AI akan menganalisis gaya host terbaik berdasarkan audience engagement',
@@ -592,10 +584,7 @@ class _LiveAnalysisScreenState extends State<LiveAnalysisScreen> {
             width: 8,
             height: 8,
             margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -784,7 +773,7 @@ SUCCESS RATE PREDICTION: 87% audience retention dengan host profile ini.""";
 
   void _copyAllAnalysis() {
     if (_analysisResult == null) return;
-    
+
     final allText = """${_analysisResult!.hostRecommendation}
 
 ---
@@ -798,7 +787,7 @@ ${_analysisResult!.audienceInsights}
 ---
 
 ${_analysisResult!.aiRecommendations}""";
-    
+
     Clipboard.setData(ClipboardData(text: allText));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

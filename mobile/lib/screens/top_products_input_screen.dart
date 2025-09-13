@@ -5,10 +5,7 @@ import '../services/top_products_service.dart';
 class TopProductsInputScreen extends StatefulWidget {
   final VoidCallback? onProductsAdded;
 
-  const TopProductsInputScreen({
-    super.key,
-    this.onProductsAdded,
-  });
+  const TopProductsInputScreen({super.key, this.onProductsAdded});
 
   @override
   State<TopProductsInputScreen> createState() => _TopProductsInputScreenState();
@@ -20,13 +17,13 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     TextEditingController(),
     TextEditingController(),
   ];
-  
+
   final List<TextEditingController> _priceControllers = [
     TextEditingController(),
     TextEditingController(),
     TextEditingController(),
   ];
-  
+
   final List<TextEditingController> _salesControllers = [
     TextEditingController(),
     TextEditingController(),
@@ -69,9 +66,9 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
       backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
         title: Text(
-          TopProductsService.userTopProducts.isNotEmpty 
-            ? 'Edit 3 Produk Terlaris'
-            : 'Input 3 Produk Terlaris',
+          TopProductsService.userTopProducts.isNotEmpty
+              ? 'Edit 3 Produk Terlaris'
+              : 'Input 3 Produk Terlaris',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -96,15 +93,15 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Product Input Cards
             for (int i = 0; i < 3; i++) ...[
               _buildProductInputCard(i + 1, i),
               const SizedBox(height: 16),
             ],
-            
+
             const SizedBox(height: 24),
-            
+
             // Save Button
             SizedBox(
               width: double.infinity,
@@ -119,13 +116,10 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
                   ),
                 ),
                 child: Text(
-                  TopProductsService.userTopProducts.isNotEmpty 
-                    ? 'Update Produk'
-                    : 'Simpan Produk',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  TopProductsService.userTopProducts.isNotEmpty
+                      ? 'Update Produk'
+                      : 'Simpan Produk',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -161,7 +155,7 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Product Name
           _buildTextField(
             controller: _nameControllers[index],
@@ -169,7 +163,7 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
             hint: 'Masukkan nama produk',
           ),
           const SizedBox(height: 16),
-          
+
           // Product Price
           _buildTextField(
             controller: _priceControllers[index],
@@ -178,7 +172,7 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 16),
-          
+
           // Sales Count
           _buildTextField(
             controller: _salesControllers[index],
@@ -275,9 +269,9 @@ class _TopProductsInputScreenState extends State<TopProductsInputScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          TopProductsService.userTopProducts.isNotEmpty 
-            ? 'Produk berhasil diupdate!'
-            : 'Produk berhasil disimpan!'
+          TopProductsService.userTopProducts.isNotEmpty
+              ? 'Produk berhasil diupdate!'
+              : 'Produk berhasil disimpan!',
         ),
         backgroundColor: Colors.green,
       ),

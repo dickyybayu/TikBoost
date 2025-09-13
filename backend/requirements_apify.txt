@@ -1,4 +1,0 @@
-# Add this to your requirements.txt
-
-# Apify integration for TikTok scraping
-apify-client==1.7.1

@@ -6,6 +6,7 @@ pydantic-settings==2.1.0
 
 # Database
 sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
 
 # Auth
 python-jose[cryptography]==3.3.0
@@ -16,12 +17,13 @@ email-validator==2.2.0
 # Environment
 python-dotenv==1.0.0
 
-# AI/ML Dependencies for Fine-tuned Mistral Model
-torch>=2.2.0
-transformers>=4.36.0
-tokenizers>=0.15.0
-huggingface-hub>=0.19.0
-
 # Additional utilities
 aiofiles==23.2.1
 httpx==0.25.2
+requests==2.31.0
+
+# AI Dependencies (lightweight for production)
+# torch>=2.2.0  # Commented out - too heavy for Render
+# transformers>=4.36.0  # Commented out - too heavy for Render
+# tokenizers>=0.15.0  # Commented out - too heavy for Render
+# huggingface-hub>=0.19.0  # Commented out - too heavy for Render

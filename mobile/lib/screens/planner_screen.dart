@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../services/top_products_service.dart';
 import '../services/sessions_service.dart';
 import '../services/api_service.dart';
 import '../models/planner_models.dart';
+import '../models/product_models.dart';
 
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
@@ -16,13 +19,28 @@ class _PlannerScreenState extends State<PlannerScreen> {
   List<LiveSession> _aiSuggestions = [];
   DateTime _selectedDate = DateTime.now();
   late SessionsService _sessionsService;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
     _sessionsService = SessionsService(apiService: ApiService());
     _loadSessions();
-    _generateAISuggestions();
+    _tryLoadCachedSuggestions();
+  }
+
+  /// Try to load AI suggestions from cache silently (no error messages)
+  Future<void> _tryLoadCachedSuggestions() async {
+    print('[PlannerScreen] Attempting to load cached recommendations...');
+    final cachedRecommendations = await _loadCachedRecommendations();
+    if (cachedRecommendations != null) {
+      print(
+        '[PlannerScreen] Auto-loading cached recommendations: $cachedRecommendations',
+      );
+      _createSuggestionsFromRecommendations(cachedRecommendations);
+    } else {
+      print('[PlannerScreen] No cached recommendations found');
+    }
   }
 
   /// Load sessions from backend/local storage
@@ -46,36 +64,112 @@ class _PlannerScreenState extends State<PlannerScreen> {
     }
   }
 
-  void _generateAISuggestions() {
-    if (TopProductsService.hasTopProducts) {
-      final topProducts = TopProductsService.userTopProducts;
-      if (topProducts.isNotEmpty) {
-        final mainProduct = topProducts.first;
+  Future<void> _generateAISuggestions() async {
+    if (!mounted) return;
 
-        setState(() {
-          _aiSuggestions = [
-            LiveSession(
-              id: 'ai_1',
-              copywriting:
-                  'COPY: ${mainProduct.name} ala model, murah lebih, beli sekarang!',
-              host: 'HOST: Dewi',
-              time: 'TIME: 19:00-21:00 WIB',
-              bundle: 'BUNDLE: ${mainProduct.name} + Bonus Item (diskon 10%)',
-              isAISuggestion: true,
-            ),
-            LiveSession(
-              id: 'ai_2',
-              copywriting:
-                  'COPY: Flash sale ${mainProduct.name}, stock terbatas!',
-              host: 'HOST: Sarah',
-              time: 'TIME: 20:00-22:00 WIB',
-              bundle: 'BUNDLE: ${mainProduct.name} x2 + Free Shipping',
-              isAISuggestion: true,
-            ),
-          ];
-        });
-      }
+    // Try to load cached recommendations from recommendations screen first
+    final cachedRecommendations = await _loadCachedRecommendations();
+
+    if (cachedRecommendations != null) {
+      print(
+        '[PlannerScreen] Using cached recommendations from recommendations screen',
+      );
+      _createSuggestionsFromRecommendations(cachedRecommendations);
+      return;
     }
+
+    // If no cached data, show message to generate from recommendations screen first
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please generate recommendations first from the Recommendations tab',
+          ),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
+  // Load cached recommendations from SharedPreferences (same as recommendations screen)
+  Future<Map<String, dynamic>?> _loadCachedRecommendations() async {
+    try {
+      // Try to load from backend first
+      final backendData = await _apiService.loadAIRecommendations('current_user');
+      
+      if (backendData != null) {
+        print('[PlannerScreen] Loaded recommendations from backend');
+        return backendData;
+      }
+
+      // Fallback to SharedPreferences if backend fails
+      final prefs = await SharedPreferences.getInstance();
+      final String? cachedData = prefs.getString('cached_recommendations');
+
+      if (cachedData != null) {
+        final Map<String, dynamic> data = json.decode(cachedData);
+
+        // Check if data is not too old (24 hours)
+        final timestamp = data['timestamp'] as int?;
+        if (timestamp != null) {
+          final cacheAge = DateTime.now().millisecondsSinceEpoch - timestamp;
+          if (cacheAge < 24 * 60 * 60 * 1000) {
+            // 24 hours in milliseconds
+            print('[PlannerScreen] Loaded recommendations from local cache');
+            return data;
+          }
+        }
+      }
+    } catch (e) {
+      print('[PlannerScreen] Error loading cached recommendations: $e');
+    }
+    return null;
+  }
+
+  // Create AI suggestions from cached recommendations data
+  void _createSuggestionsFromRecommendations(Map<String, dynamic> data) {
+    if (!mounted) return;
+
+    print('[PlannerScreen] Creating suggestions from data: $data');
+
+    // Combine all copywriting variants into one card
+    String combinedCopywriting = '';
+
+    if (data['copywriting1']?.isNotEmpty == true) {
+      combinedCopywriting += 'OPTION 1:\n${data['copywriting1']}\n\n';
+    }
+
+    if (data['copywriting2']?.isNotEmpty == true) {
+      combinedCopywriting += 'OPTION 2:\n${data['copywriting2']}\n\n';
+    }
+
+    if (data['copywriting3']?.isNotEmpty == true) {
+      combinedCopywriting += 'OPTION 3:\n${data['copywriting3']}\n\n';
+    }
+
+    // Remove trailing newlines
+    combinedCopywriting = combinedCopywriting.trim();
+
+    print('[PlannerScreen] Combined copywriting: "$combinedCopywriting"');
+
+    setState(() {
+      _aiSuggestions = [
+        if (combinedCopywriting.isNotEmpty)
+          LiveSession(
+            id: 'ai_combined',
+            copywriting: combinedCopywriting,
+            host: 'HOST: AI Generated',
+            time: 'TIME: ${data['optimalTime'] ?? 'Prime time recommended'}',
+            bundle:
+                'BUNDLE: ${data['bundleRecommendation'] ?? 'Bundle recommendation'}',
+            isAISuggestion: true,
+          ),
+      ];
+    });
+
+    print(
+      '[PlannerScreen] Created ${_aiSuggestions.length} suggestions from cached recommendations',
+    );
   }
 
   // Get sessions for selected date only
@@ -84,8 +178,8 @@ class _PlannerScreenState extends State<PlannerScreen> {
       if (session.scheduledDate == null) return false;
       final sessionDate = session.scheduledDate!;
       return sessionDate.year == _selectedDate.year &&
-             sessionDate.month == _selectedDate.month &&
-             sessionDate.day == _selectedDate.day;
+          sessionDate.month == _selectedDate.month &&
+          sessionDate.day == _selectedDate.day;
     }).toList();
   }
 
@@ -213,7 +307,11 @@ class _PlannerScreenState extends State<PlannerScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -577,9 +675,24 @@ class _PlannerScreenState extends State<PlannerScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Add your top 3 products first to get AI-powered live session suggestions',
+            'Generate recommendations first from the Recommendations tab to get AI suggestions here',
             style: TextStyle(fontSize: 14, color: Colors.black45),
             textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _generateAISuggestions,
+            icon: const Icon(Icons.auto_awesome, size: 18),
+            label: const Text('Load AI Suggestions'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF3B82F6),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
         ],
       ),
@@ -765,10 +878,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
                       (session) => session.id == sessionId,
                     );
                   });
-                  
+
                   // Save to backend/local storage
                   _saveSessions();
-                  
+
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
