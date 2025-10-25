@@ -3,19 +3,34 @@ import 'utils/app_theme.dart';
 import 'utils/app_constants.dart';
 import 'utils/theme_notifier.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/ai_content_screen.dart';
+import 'screens/recommendations_screen.dart';
 import 'screens/planner_screen.dart';
-import 'screens/products_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'services/subscription_service.dart';
+import 'services/top_products_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize services
+  SubscriptionService.resetToDefault();
+  await TopProductsService.loadProducts();
+
   runApp(TikBoostApp());
 }
 
-class TikBoostApp extends StatelessWidget {
-  final ThemeNotifier _themeNotifier = ThemeNotifier();
-
+class TikBoostApp extends StatefulWidget {
   TikBoostApp({super.key});
+
+  @override
+  State<TikBoostApp> createState() => _TikBoostAppState();
+}
+
+class _TikBoostAppState extends State<TikBoostApp> {
+  final ThemeNotifier _themeNotifier = ThemeNotifier();
+  bool _isAuthenticated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +43,16 @@ class TikBoostApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: _themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
-          home: MainScreen(themeNotifier: _themeNotifier),
+          routes: {
+            '/dashboard':
+                (context) => MainScreen(themeNotifier: _themeNotifier),
+            '/login': (context) => LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
+          },
+          home:
+              _isAuthenticated
+                  ? MainScreen(themeNotifier: _themeNotifier)
+                  : LoginScreen(key: const Key('login')),
         );
       },
     );
@@ -38,10 +62,7 @@ class TikBoostApp extends StatelessWidget {
 class MainScreen extends StatefulWidget {
   final ThemeNotifier themeNotifier;
 
-  const MainScreen({
-    super.key,
-    required this.themeNotifier,
-  });
+  const MainScreen({super.key, required this.themeNotifier});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -51,21 +72,14 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<BottomNavigationBarItem> _navigationItems = const [
+    BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
     BottomNavigationBarItem(
-      icon: Icon(Icons.home_rounded),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.star_rounded),
+      icon: Icon(Icons.auto_awesome_rounded),
       label: 'Recommendations',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.calendar_today_rounded),
       label: 'Planner',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.inventory_rounded),
-      label: 'Products',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.settings_rounded),
@@ -76,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = widget.themeNotifier.isDark;
-    
+
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: _buildBottomNavigationBar(isDark),
@@ -86,21 +100,15 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getCurrentScreen() {
     switch (_currentIndex) {
       case 0:
-        return DashboardScreen(
-          onSettingsPressed: () => _navigateToSettings(),
-        );
+        return DashboardScreen(onSettingsPressed: () => _navigateToSettings());
       case 1:
-        return const AIContentScreen();
+        return const RecommendationsScreen();
       case 2:
         return const PlannerScreen();
       case 3:
-        return const ProductsScreen();
-      case 4:
         return SettingsScreen(themeNotifier: widget.themeNotifier);
       default:
-        return DashboardScreen(
-          onSettingsPressed: () => _navigateToSettings(),
-        );
+        return DashboardScreen(onSettingsPressed: () => _navigateToSettings());
     }
   }
 
@@ -134,7 +142,8 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsScreen(themeNotifier: widget.themeNotifier),
+        builder:
+            (context) => SettingsScreen(themeNotifier: widget.themeNotifier),
       ),
     );
   }

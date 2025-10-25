@@ -8,7 +8,8 @@ plugins {
 android {
     namespace = "com.example.tik_boost"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Override NDK to satisfy plugins requiring NDK r27
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -28,6 +29,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Force software rendering to avoid graphics crashes
+        manifestPlaceholders["enableSoftwareRendering"] = "true"
+        manifestPlaceholders["enableImpeller"] = "false"
     }
 
     buildTypes {

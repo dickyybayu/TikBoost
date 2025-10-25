@@ -22,6 +22,20 @@
 **/ios/Flutter/flutter_export_environment.sh
 
 # ------------------------
+# Security & API Keys
+# ------------------------
+# NEVER commit API keys, secrets, or credentials
+**/*_config.dart
+**/runpod_config.dart
+**/*_secret.dart
+**/*_credentials.dart
+.env*
+*.key
+*.pem
+secrets/
+credentials/
+
+# ------------------------
 # Python / FastAPI
 # ------------------------
 __pycache__/
@@ -34,6 +48,17 @@ venv/
 .env
 .env.*
 *.log
+
+# User data & sessions (should not be committed)
+user_data/
+user_sessions/
+data/*.json
+
+# Demo & test files
+demo_*.py
+test_*.py
+*_demo.py
+*_test.py
 
 # ------------------------
 # OS / IDE files
